@@ -84,6 +84,7 @@ export LESS_TERMCAP_us=$'\E[01;32m'
 [ -f "$HOME/.secrets" ] && source "$HOME/.secrets"
 
 export PATH="$HOME/.npm-global/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
 
 ######################################################
 # Fast fetch
