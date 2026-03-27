@@ -13,3 +13,4 @@ home/.local/share/
 *.key
 *.pem
 home/.secrets
+home/.config/tmux/plugins/

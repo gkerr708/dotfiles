@@ -29,6 +29,11 @@ PACMAN_PKGS=(
     playerctl
     pipewire
     wireplumber
+    tmux
+    rofi
+    mpv
+    ranger
+    btop
 )
 
 AUR_PKGS=(
@@ -66,15 +71,22 @@ link_dotfiles() {
     # Back up any existing real files that would conflict
     for f in \
         "$HOME/.bashrc" \
+        "$HOME/.bash_profile" \
         "$HOME/.gitconfig" \
         "$HOME/.npmrc" \
         "$HOME/.config/starship.toml" \
         "$HOME/.config/alacritty/alacritty.toml" \
+        "$HOME/.config/btop/btop.conf" \
+        "$HOME/.config/git/ignore" \
         "$HOME/.config/hypr/hyprland.conf" \
         "$HOME/.config/hypr/hyprlock.conf" \
         "$HOME/.config/kitty/kitty.conf" \
         "$HOME/.config/kitty/current-theme.conf" \
-        "$HOME/.config/kitty/mytheme.conf"
+        "$HOME/.config/kitty/mytheme.conf" \
+        "$HOME/.config/mpv/mpv.conf" \
+        "$HOME/.config/mpv/input.conf" \
+        "$HOME/.config/rofi/config.rasi" \
+        "$HOME/.config/tmux/tmux.conf"
     do
         if [[ -e "$f" && ! -L "$f" ]]; then
             echo -e "${YELLOW}Backing up $f → $f.bak${RC}"
@@ -82,7 +94,16 @@ link_dotfiles() {
         fi
     done
 
-    mkdir -p "$HOME/.config/alacritty" "$HOME/.config/hypr" "$HOME/.config/kitty"
+    mkdir -p \
+        "$HOME/.config/alacritty" \
+        "$HOME/.config/btop" \
+        "$HOME/.config/git" \
+        "$HOME/.config/hypr" \
+        "$HOME/.config/kitty" \
+        "$HOME/.config/mpv" \
+        "$HOME/.config/ranger" \
+        "$HOME/.config/rofi" \
+        "$HOME/.config/tmux"
 
     stow home
     echo -e "${GREEN}Dotfiles linked.${RC}"
