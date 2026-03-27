@@ -1,0 +1,140 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 28,
+  "margin-top": 6,
+  "margin-left": 8,
+  "margin-right": 8,
+  "spacing": 8,
+  "gtk-layer-shell": true,
+
+  "modules-left": [
+    "custom/logo",
+    "hyprland/workspaces",
+    "hyprland/submap",
+    "hyprland/window"
+  ],
+  "modules-center": [
+    "clock#date",
+    "clock#time"
+  ],
+  "modules-right": [
+    "tray",
+	"mpris",
+    "backlight",
+    "pulseaudio",
+    "network",
+    "bluetooth",
+    //"temperature",
+    //"cpu",
+    "memory",
+    "battery",
+    "idle_inhibitor"
+  ],
+
+  // --- Left ---
+  "custom/logo": {
+    "format": "",
+    "tooltip": "Waybar for Hyprland",
+    "on-click": "wofi --show drun || rofi -show drun",
+    "exec-if": "bash -lc 'command -v wofi || command -v rofi'"
+  },
+
+  "hyprland/workspaces": {
+    "format": "{id} {windows}",              // shows workspace NUMBER, then its windows
+    "format-window-separator": " ",          // separator between window entries
+    "window-rewrite-default": "?",          // icon when no rule matches
+    "window-rewrite": {                      // map classes/titles to icons/text
+      "class<kitty>": "",
+      "class<firefox>": "",
+      "class<brave>": "",
+      "title<.*youtube.*>": ""
+    },
+    "persistent-workspaces": { "*": [1,2,3,4,5,6,7,8,9,10] }, // always show 1–10
+    "on-click": "hyprctl dispatch workspace {id}"
+  },
+
+  "hyprland/submap": { "format": " {name}", "tooltip": true },
+  "hyprland/window": { "max-length": 60, "separate-outputs": true, "rewrite": { ".* - Mozilla Firefox": "Firefox" } },
+
+  // --- Center ---
+  "clock#date": { "format": "  {:%a %b %d}", "tooltip-format": "{:%Y-%m-%d}" },
+  "clock#time": { "format": "  {:%I:%M %p}", "interval": 1, "tooltip-format": "{:%Z}" }, 
+
+
+  // --- Right ---
+  "tray": { "icon-size": 16, "spacing": 6 },
+
+  "mpris": {
+    "format": "{player_icon} {title} - {artist}",
+    "player-icons": {
+      "default": "",
+      "spotify": "",
+      "firefox": "",
+      "mpv": ""
+    },
+    "ignored-players": ["chromium"],
+    "max-length": 32
+  },
+
+  "backlight": {
+    "format": "{percent}% ",
+    "on-scroll-up": "brightnessctl set 5%+",
+    "on-scroll-down": "brightnessctl set 5%-",
+    "tooltip": true
+  },
+
+  "pulseaudio": {
+    "format": "{volume}% {icon}",
+    "format-muted": "MUTE ",
+    "format-icons": { "headphone": "", "handsfree": "", "headset": "", "phone": "", "portable": "", "car": "", "default": ["","",""] },
+    "on-click": "pavucontrol || pwvucontrol",
+    "scroll-step": 2
+  },
+
+  "network": {
+    "format-wifi": "{essid}  {signalStrength}%",
+    "format-ethernet": " {ipaddr}",
+    "format-disconnected": "󰤮",
+    "tooltip": true,
+    "on-click": "nm-connection-editor || kitty -e nmtui"
+  },
+
+  "bluetooth": {
+    "format": " {status}",
+    "format-connected": " {num_connections}",
+    "tooltip-format": "{controller_alias}\n{device_enumerate}",
+	"on-click": "blueman-manager || kitty -e bluetoothctl"
+  },
+
+  "temperature": {
+    "critical-threshold": 80,
+    "format": "{temperatureC}°C ",
+    "tooltip": true
+  },
+
+  "cpu": {
+    "interval": 2,
+    "format": "{usage}% ",
+    "tooltip": true
+  },
+
+  "memory": {
+    "interval": 5,
+    "format": "{used:0.1f}G ",
+    "tooltip": true
+  },
+
+  "battery": {
+    "states": { "good": 80, "warning": 30, "critical": 15 },
+    "format": "{capacity}% {icon}",
+    "format-icons": ["","","","",""],
+    "tooltip": true
+  },
+
+  "idle_inhibitor": {
+    "format": "{icon}",
+    "format-icons": { "activated": "󰅶", "deactivated": "󰾪" },
+    "tooltip": "Toggle idle inhibitor"
+  }
+}
