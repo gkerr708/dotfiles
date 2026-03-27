@@ -1,0 +1,114 @@
+# Modern, minimal, no powerline shapes
+add_newline = true
+command_timeout = 5000
+
+format = "$username$directory$git_branch$git_status$python$nodejs$rust$docker_context$jobs$line_break$character"
+right_format = "$time"
+
+# Use this palette by default
+palette = "catppuccin_mocha"
+
+# Catppuccin Mocha colors
+[palettes.catppuccin_mocha]
+rosewater = "#f5e0dc"
+flamingo  = "#f2cdcd"
+pink      = "#f5c2e7"
+mauve     = "#cba6f7"
+red       = "#f38ba8"
+maroon    = "#eba0ac"
+peach     = "#fab387"
+yellow    = "#f9e2af"
+green     = "#a6e3a1"
+teal      = "#94e2d5"
+sky       = "#89dceb"
+sapphire  = "#74c7ec"
+blue      = "#89b4fa"
+lavender  = "#b4befe"
+text      = "#cdd6f4"
+subtext1  = "#bac2de"
+subtext0  = "#a6adc8"
+overlay2  = "#9399b2"
+overlay1  = "#7f849c"
+overlay0  = "#6c7086"
+surface2  = "#585b70"
+surface1  = "#45475a"
+surface0  = "#313244"
+base      = "#1e1e2e"
+mantle    = "#181825"
+crust     = "#11111b"
+
+# ── Core look
+[username]
+show_always = false
+format = "[$user ](fg:teal)"
+disabled = false
+
+[directory]
+style = "bold fg:text"
+format = "[$path]($style) "
+truncate_to_repo = false
+truncation_symbol = "…/"
+read_only = " "
+
+# ── Git (minimal)
+[git_branch]
+symbol = ""
+style = "fg:blue"
+format = "[$symbol $branch]($style) "
+
+[git_status]
+style = "fg:subtext0"
+format = "([$all_status$ahead_behind]($style) )"
+conflicted = "C"
+ahead = "↑$count"
+behind = "↓$count"
+diverged = "↕"
+stashed = "≡"
+modified = "±"
+renamed = "»"
+deleted = "D"
+untracked = "·"
+
+# ── Runtimes (show only when relevant)
+[python]
+format = "[(($virtualenv)) ](fg:yellow)"
+pyenv_version_name = true
+
+[nodejs]
+symbol = ""
+style = "fg:green"
+format = "[$symbol $version]($style) "
+
+[rust]
+symbol = ""
+style = "fg:red"
+format = "[$symbol $version]($style) "
+
+[docker_context]
+symbol = ""
+style = "fg:teal"
+format = "[$symbol $context]($style) "
+
+# ── Useful signals
+[cmd_duration]
+min_time = 1000
+style = "fg:mauve"
+format = "[ $duration]($style) "
+
+[jobs]
+symbol = ""
+style = "fg:peach"
+number_threshold = 1
+format = "[$symbol $number]($style) "
+
+[time]
+disabled = false
+time_format = "%H:%M"
+style = "fg:blue"
+format = "[$time]($style)"
+
+# ── Prompt char: subtle success/error
+[character]
+success_symbol = "[›](fg:green)"
+error_symbol   = "[›](fg:red)"
+vimcmd_symbol  = "[‹](fg:teal)"

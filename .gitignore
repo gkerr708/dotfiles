@@ -1,0 +1,15 @@
+# Sensitive files
+home/.ssh/
+home/.gnupg/
+home/.netrc
+home/.env
+
+# Application caches and state
+home/.cache/
+home/.local/share/
+
+# Secrets / credentials
+*.secret
+*.key
+*.pem
+home/.secrets

@@ -1,0 +1,67 @@
+# ============================= Init =============================
+[init]
+    defaultBranch = main  # Set 'main' as the default branch for new repos
+
+# ============================= User Identity =============================
+[user]
+    email = gavin.kerr@dal.ca
+    name = gkerr_laptop
+    username = gkerr708
+
+# ============================= Diff and Delta Settings =============================
+[core]
+    pager = delta --paging=always # This allows the use of n/N for navigation in diffs
+
+[interactive]
+    diffFilter = delta --color-only
+
+[diff]
+    colorMoved = zebra            # Highlight moved lines with zebra stripes
+    wordRegex = .                 # Enable word-level diffing
+
+[delta]
+    side-by-side = true
+    navigate = true
+    dark = true
+    line-numbers = true
+    syntax-theme = Monokai Extended
+    features = side-by-side line-numbers decorations
+    whitespace-error-style = 22 reverse
+    plus-style = syntax "#012800"
+    minus-style = syntax "#340001"
+
+[color]
+    ui = auto
+    branch = auto
+    diff = auto
+    status = auto
+    interactive = auto
+
+# ============================= Merge Behavior =============================
+[merge]
+    conflictstyle = diff3
+
+# ============================= Aliases =============================
+[alias]
+    co = checkout
+    br = branch
+    st = status
+    last = log -1 HEAD
+    unstage = reset HEAD --
+    amend = commit --amend --no-edit
+	# Time since last commit
+	#lg = log --graph --all --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset) %C(auto)%C(bold yellow)%d%C(reset)'
+	# Date and time format for the log
+	lg = log --graph --all --abbrev-commit --decorate --date=format:'%Y-%m-%d %H:%M' --format='%C(bold blue)%h%C(reset) - %C(bold green)(%ad)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset) %C(auto)%C(bold yellow)%d%C(reset)'
+	# Working 
+	#lgl = log --graph --all --decorate --date=format:'%Y-%m-%d %H:%M' --format='%C(bold blue)%H%C(reset)%n%C(bold green)%ad%C(reset) %C(dim white)- %an <%ae>%C(reset)%n%C(white)%s%C(reset)%n%C(auto)%d%C(reset)%n'
+	# Should show extra information like the commit message body and the commit description
+	lgl = log --graph --all --decorate --date=format:'%Y-%m-%d %H:%M' --format='%C(bold blue)%H%C(reset)%n%C(bold green)%ad%C(reset) %C(dim white)- %an <%ae>%C(reset)%n%C(white)%s%C(reset)%n%b%C(auto)%d%C(reset)%n'
+
+    dunstaged = diff                        # Show unstaged changes
+    dstaged = diff --cached                # Show staged changes
+    dlast = diff HEAD^ HEAD                # Diff last two commits
+
+# ============================= Credentials =============================
+[credential]
+    helper = cache --timeout=3600   # Cache credentials for 1 hour
