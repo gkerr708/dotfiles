@@ -88,7 +88,7 @@ link_dotfiles() {
         "$HOME/.config/rofi/config.rasi" \
         "$HOME/.config/tmux/tmux.conf"
     do
-        if [[ -e "$f" && ! -L "$f" ]]; then
+        if [[ -e "$f" && ! -L "$f" && ! -L "$(dirname "$f")" ]]; then
             echo -e "${YELLOW}Backing up $f → $f.bak${RC}"
             mv "$f" "$f.bak"
         fi
