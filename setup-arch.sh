@@ -17,14 +17,14 @@ PACMAN_PKGS=(
     neovim
     bat
     starship
-    delta                  # git-delta
+    git-delta
     alacritty
     kitty
     hyprland
     hyprlock
     waybar
     wofi
-    nm-applet              # networkmanager-applet
+
     brightnessctl
     playerctl
     pipewire
@@ -103,7 +103,8 @@ link_dotfiles() {
         "$HOME/.config/mpv" \
         "$HOME/.config/ranger" \
         "$HOME/.config/rofi" \
-        "$HOME/.config/tmux"
+        "$HOME/.config/tmux" \
+        "$HOME/.config/wofi"
 
     stow home
     echo -e "${GREEN}Dotfiles linked.${RC}"
