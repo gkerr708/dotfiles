@@ -1,5 +1,5 @@
 /* Base */
-* { font-family: "JetBrainsMono Nerd Font", monospace; font-size: 12px; }
+* { font-family: "JetBrainsMono Nerd Font", monospace; font-size: 11px; min-height: 0; }
 window#waybar {
   background: rgba(0,0,0,0.0); /* rgba(24, 24, 37, 0.65); */
   border-radius: 14px;
@@ -7,7 +7,7 @@ window#waybar {
   box-shadow: 0 8px 30px rgba(0,0,0,0.35);
 }
 #workspaces button {
-  padding: 0 8px; margin: 3px 4px;
+  padding: 0 4px; margin: 2px 2px;
   border-radius: 10px; transition: all 120ms ease-in-out;
   color: #cdd6f4;
   background: rgba(0, 0, 0, 0.0);
@@ -28,14 +28,14 @@ window#waybar {
 }
 
 #mpris {
-  padding: 0 20px;
+  padding: 0 6px;
   color: #a6adc8;
 }
 
-#custom-logo { padding: 0 10px; color: #fab387; font-size: 16px; }
+#custom-logo { padding: 0 8px; color: #fab387; font-size: 12px; }
 #clock, #pulseaudio, #network, #bluetooth, #temperature, #cpu, #memory, #battery,
-#tray, #idle_inhibitor, #custom-player, #submap, #window, #backlight {
-  padding: 0 10px; margin: 0 2px; border-radius: 10px;
+#tray, #idle_inhibitor, #custom-player, #submap, #window, #backlight, #wireplumber {
+  padding: 0 5px; margin: 2px 1px; border-radius: 8px;
   background: rgba(0,0,0,0.0);
   border: 1px solid rgba(137, 180, 250, 0.18);
 }
@@ -43,12 +43,14 @@ window#waybar {
 #clock.date { color: #a6e3a1; }
 #clock.time { color: #89b4fa; }
 #pulseaudio { color: #89b4fa; }
+#wireplumber { color: #89b4fa; }
 #backlight { color: #f9e2af; }
 #network { color: #74c7ec; }
 #bluetooth { color: #94e2d5; }
 #temperature { color: #fab387; }
 #cpu { color: #cba6f7; }
 #memory { color: #f2cdcd; }
+#battery { color: #a6e3a1; }
 #battery.good { color: #a6e3a1; }
 #battery.warning { color: #f9e2af; }
 #battery.critical { color: #f38ba8; }
