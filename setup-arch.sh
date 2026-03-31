@@ -46,20 +46,36 @@ FONTS=(
     ttf-jetbrains-mono-nerd # JetBrainsMono Nerd Font (used by kitty)
 )
 
-install_packages() {
-    echo -e "${YELLOW}Installing pacman packages...${RC}"
-    sudo pacman -S --needed --noconfirm "${PACMAN_PKGS[@]}" "${FONTS[@]}"
+check_packages() {
+    echo -e "${YELLOW}Package checklist:${RC}"
 
-    if ! command -v yay &>/dev/null; then
-        echo -e "${YELLOW}Installing yay...${RC}"
-        sudo pacman -S --needed --noconfirm base-devel
-        git clone https://aur.archlinux.org/yay-git.git /tmp/yay-git
-        (cd /tmp/yay-git && makepkg --noconfirm -si)
-        rm -rf /tmp/yay-git
+    local all_good=true
+
+    for pkg in "${PACMAN_PKGS[@]}" "${FONTS[@]}"; do
+        if pacman -Qi "$pkg" &>/dev/null || command -v "$pkg" &>/dev/null; then
+            echo -e "  ${GREEN}[✓]${RC} $pkg"
+        else
+            echo -e "  ${RED}[✗]${RC} $pkg  (install: sudo pacman -S $pkg)"
+            all_good=false
+        fi
+    done
+
+    for pkg in "${AUR_PKGS[@]}"; do
+        local cmd="${pkg%-bin}"; cmd="${cmd%-git}"
+        if pacman -Qi "$pkg" &>/dev/null || command -v "$cmd" &>/dev/null; then
+            echo -e "  ${GREEN}[✓]${RC} $pkg"
+        else
+            echo -e "  ${RED}[✗]${RC} $pkg  (install: yay -S $pkg)"
+            all_good=false
+        fi
+    done
+
+    if $all_good; then
+        echo -e "${GREEN}All packages present.${RC}"
+    else
+        echo -e "${YELLOW}Install missing packages before continuing if needed.${RC}"
     fi
-
-    echo -e "${YELLOW}Installing AUR packages...${RC}"
-    yay -S --needed --noconfirm "${AUR_PKGS[@]}"
+    echo
 }
 
 # ── Symlinks via stow ─────────────────────────────────────────────────────────
@@ -68,31 +84,18 @@ link_dotfiles() {
     echo -e "${YELLOW}Linking dotfiles with stow...${RC}"
     cd "$DOTFILES_DIR"
 
-    # Back up any existing real files that would conflict
-    for f in \
-        "$HOME/.bashrc" \
-        "$HOME/.bash_profile" \
-        "$HOME/.gitconfig" \
-        "$HOME/.npmrc" \
-        "$HOME/.config/starship.toml" \
-        "$HOME/.config/alacritty/alacritty.toml" \
-        "$HOME/.config/btop/btop.conf" \
-        "$HOME/.config/git/ignore" \
-        "$HOME/.config/hypr/hyprland.conf" \
-        "$HOME/.config/hypr/hyprlock.conf" \
-        "$HOME/.config/kitty/kitty.conf" \
-        "$HOME/.config/kitty/current-theme.conf" \
-        "$HOME/.config/kitty/mytheme.conf" \
-        "$HOME/.config/mpv/mpv.conf" \
-        "$HOME/.config/mpv/input.conf" \
-        "$HOME/.config/rofi/config.rasi" \
-        "$HOME/.config/tmux/tmux.conf"
-    do
-        if [[ -e "$f" && ! -L "$f" && ! -L "$(dirname "$f")" ]]; then
-            echo -e "${YELLOW}Backing up $f → $f.bak${RC}"
-            mv "$f" "$f.bak"
-        fi
-    done
+    # Check for conflicts before stowing
+    local conflicts
+    conflicts=$(stow --simulate home 2>&1 | grep "existing target is not" | sed 's/.*: //')
+
+    if [[ -n "$conflicts" ]]; then
+        echo -e "${RED}Conflicting files found (not symlinks):${RC}"
+        while IFS= read -r f; do
+            echo -e "  ${RED}[✗]${RC} ~/$f"
+        done <<< "$conflicts"
+        echo -e "${YELLOW}Remove or back up these files and re-run.${RC}"
+        exit 1
+    fi
 
     mkdir -p \
         "$HOME/.config/alacritty" \
@@ -112,13 +115,7 @@ link_dotfiles() {
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
-if ! groups | grep -q wheel; then
-    echo -e "${RED}You must be in the wheel group to run this.${RC}"
-    exit 1
-fi
-
-install_packages
+check_packages
 link_dotfiles
 
 echo -e "${GREEN}Done! Open a new shell to see your config.${RC}"
-echo -e "${YELLOW}Note: edit ~/.config/hypr/hyprland.conf to set your monitor layout.${RC}"
