@@ -1,0 +1,7 @@
+[manager]
+prepend_keymap = [
+    # Use 'H' to go to home directory
+    { on = [ "g", "h" ], run = "cd ~", desc = "Go to home" },
+    # Custom shell command on 'T'
+    { on = [ "T" ], run = "shell 'dragon -x \"$@\"' --confirm", desc = "Drag and drop" },
+]

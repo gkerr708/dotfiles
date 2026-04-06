@@ -226,6 +226,17 @@ alias mmm='kitty @ set-font-size -- -2'
 alias mmmm='kitty @ set-font-size -- -3'
 alias fnt="kitty @ set-font-size"
 
+# Audo cd to cw with yazi
+function y() {
+    local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
+    yazi "$@" --cwd-file="$tmp"
+    if cwd="$(cat "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+        cd "$cwd"
+    fi
+    rm -f "$tmp"
+}
+
+
 #############
 # nnn
 ############

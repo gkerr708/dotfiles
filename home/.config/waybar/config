@@ -26,7 +26,7 @@
 	"wireplumber",
     "network",
     "bluetooth",
-    //"temperature",
+    "temperature",
     //"cpu",
     "memory",
     "battery",
