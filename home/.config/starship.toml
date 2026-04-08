@@ -48,7 +48,8 @@ style = "bold fg:text"
 format = "[$path]($style) "
 truncate_to_repo = false
 truncation_symbol = "…/"
-read_only = " "
+truncation_length = 100
+read_only = " "
 
 # ── Git (minimal)
 [git_branch]

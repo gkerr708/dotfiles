@@ -9,7 +9,7 @@
   "gtk-layer-shell": true,
 
   "modules-left": [
-    "custom/logo",
+    //"custom/logo",
     "hyprland/workspaces",
     "hyprland/submap",
     "hyprland/window"
@@ -19,7 +19,7 @@
     "clock#time"
   ],
   "modules-right": [
-    "tray",
+    //"tray",
 	"mpris",
     "backlight",
     //"pulseaudio",
@@ -27,7 +27,7 @@
     "network",
     "bluetooth",
     "temperature",
-    //"cpu",
+    "cpu",
     "memory",
     "battery",
     "idle_inhibitor"
@@ -103,7 +103,7 @@
 
   "network": {
     "format-wifi": "{essid}  {signalStrength}%",
-    "format-ethernet": " {ipaddr}",
+    "format-ethernet": "{ipaddr}",
     "format-disconnected": "󰤮",
     "tooltip": true,
     "on-click": "nm-connection-editor || kitty -e nmtui"
@@ -130,7 +130,7 @@
 
   "memory": {
     "interval": 5,
-    "format": "ram {used:0.1f}G",
+    "format": "{used:0.1f}G",
     "tooltip": true
   },
 
