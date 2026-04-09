@@ -236,6 +236,12 @@ function y() {
     rm -f "$tmp"
 }
 
+#############
+# Variables #
+#############
+BAT0="/org/freedesktop/UPower/devices/battery_BAT0"
+BAT1="/org/freedesktop/UPower/devices/battery_BAT1"
+
 
 #############
 # nnn

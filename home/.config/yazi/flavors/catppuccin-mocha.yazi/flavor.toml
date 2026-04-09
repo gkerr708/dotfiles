@@ -39,9 +39,8 @@ inactive = { fg = "#89b4fa", bg = "#313244" }
 # : Mode {{{
 
 [mode]
-
-normal_main = { fg = "#1e1e2e", bg = "#89b4fa", bold = true }
-normal_alt  = { fg = "#89b4fa", bg = "#313244" }
+normal_main = { fg = "#1e1e2e", bg = "#cba6f7", bold = true }
+normal_alt  = { fg = "#cba6f7", bg = "#313244" }
 
 # Select mode
 select_main = { fg = "#1e1e2e", bg = "#94e2d5", bold = true }
