@@ -227,7 +227,7 @@ alias mmmm='kitty @ set-font-size -- -3'
 alias fnt="kitty @ set-font-size"
 
 # Audo cd to cw with yazi
-function y() {
+function r() {
     local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
     yazi "$@" --cwd-file="$tmp"
     if cwd="$(cat "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
@@ -335,15 +335,15 @@ eval "$(starship init bash)"
 #######################################################
 
 # Change directory with ranger file chooser
-r() {
-    tmpfile="$(mktemp -t ranger_cd.XXXXXX)"
-    ranger --choosedir="$tmpfile" "${@:-$(pwd)}"
-    if [ -f "$tmpfile" ]; then
-        dir="$(cat "$tmpfile")"
-        rm -f "$tmpfile"
-        [ -d "$dir" ] && cd "$dir"
-    fi
-}
+#r() {
+#    tmpfile="$(mktemp -t ranger_cd.XXXXXX)"
+#    ranger --choosedir="$tmpfile" "${@:-$(pwd)}"
+#    if [ -f "$tmpfile" ]; then
+#        dir="$(cat "$tmpfile")"
+#        rm -f "$tmpfile"
+#        [ -d "$dir" ] && cd "$dir"
+#    fi
+#}
 
 # Extract various archive formats
 extract () {
