@@ -8,6 +8,13 @@ max_width = 1000
 max_height = 1000
 image_filter = "triangle"
 
+[tasks]
+micro_workers = 10
+macro_workers = 10
+
+[log]
+enabled = false
+
 [opener]
 edit = [
   { run = "$EDITOR %s", block = true, for = "unix" },
@@ -15,11 +22,36 @@ edit = [
 open = [
   { run = "xdg-open %s", desc = "Open" },
 ]
+view_image = [
+  { run = "imv %s",     desc = "View image",  for = "unix" },
+  { run = "$EDITOR %s", desc = "Edit raw",    block = true, for = "unix" },
+]
+play_video = [
+  { run = "mpv %s", desc = "Play video", for = "unix" },
+]
+view_pdf = [
+  { run = "zathura %s", desc = "View PDF", for = "unix" },
+]
+extract = [
+  { run = "unar %s", desc = "Extract here", block = true, for = "unix" },
+]
 
 [open]
 rules = [
-  { mime = "text/*", use = "edit" },
-  { mime = "inode/x-empty", use = "edit" },
-  { mime = "application/octet-stream", use = "edit" },
-  { mime = "*", use = "edit" },
+  { mime = "image/*",                   use = "view_image" },
+  { mime = "video/*",                   use = "play_video" },
+  { mime = "audio/*",                   use = "play_video" },
+  { mime = "application/pdf",           use = "view_pdf" },
+  { mime = "application/zip",           use = "extract" },
+  { mime = "application/x-tar",         use = "extract" },
+  { mime = "application/x-bzip2",       use = "extract" },
+  { mime = "application/x-gzip",        use = "extract" },
+  { mime = "application/x-xz",          use = "extract" },
+  { mime = "application/x-zstd",        use = "extract" },
+  { mime = "application/x-7z-compressed", use = "extract" },
+  { mime = "application/x-rar",         use = "extract" },
+  { mime = "text/*",                    use = "edit" },
+  { mime = "inode/x-empty",             use = "edit" },
+  { mime = "application/octet-stream",  use = "edit" },
+  { mime = "*",                         use = "edit" },
 ]
