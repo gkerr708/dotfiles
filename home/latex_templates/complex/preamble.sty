@@ -1,0 +1,67 @@
+\ProvidesPackage{preamble}[2025/01/16 v1.0 Custom Preamble]
+
+% ── Packages ──────────────────────────────────────────────────────────────────
+\RequirePackage{amsfonts, amssymb, amsmath}
+\RequirePackage[margin=1.0in]{geometry}
+\RequirePackage{graphicx}
+\RequirePackage{tikz}
+\RequirePackage{multicol}
+\RequirePackage{hyperref}
+\RequirePackage{enumitem}
+\RequirePackage{float}
+\RequirePackage{wrapfig}
+\RequirePackage{cancel}
+\RequirePackage{xcolor}
+\RequirePackage{bookmark}
+\RequirePackage{caption}
+\RequirePackage{xurl}
+\RequirePackage{booktabs}
+\RequirePackage{microtype}
+
+% ── Layout ────────────────────────────────────────────────────────────────────
+\setlength{\parskip}{\baselineskip}
+\setlength{\parindent}{0pt}
+\linespread{1.0}
+\hyphenpenalty=1000
+\exhyphenpenalty=1000
+\doublehyphendemerits=1000
+\brokenpenalty=1000
+\setlength{\emergencystretch}{1em}
+
+% ── Math shortcuts ────────────────────────────────────────────────────────────
+\newcommand{\bm}[1]{\mathbf{#1}}
+\newcommand{\bs}[1]{\boldsymbol{#1}}
+
+% ── Text shortcuts ────────────────────────────────────────────────────────────
+\newcommand{\bo}[1]{\textbf{#1}}
+\newcommand{\ti}[1]{\textit{#1}}
+\newcommand{\bi}[1]{\textbf{\textit{#1}}}
+\newcommand{\hl}[1]{\colorbox{yellow}{#1}}
+
+% ── Color commands ────────────────────────────────────────────────────────────
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\newcommand{\green}[1]{\textcolor{green}{#1}}
+\newcommand{\yellow}[1]{\textcolor{yellow}{#1}}
+\newcommand{\purple}[1]{\textcolor{purple}{#1}}
+\newcommand{\orange}[1]{\textcolor{orange}{#1}}
+\newcommand{\pink}[1]{\textcolor{pink}{#1}}
+\newcommand{\cyan}[1]{\textcolor{cyan}{#1}}
+\newcommand{\magenta}[1]{\textcolor{magenta}{#1}}
+
+% ── Theorem environments ──────────────────────────────────────────────────────
+\RequirePackage{amsthm}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% ── Custom environments ───────────────────────────────────────────────────────
+\newenvironment{myenv}[1]
+  {\par\noindent\textbf{#1: }\itshape}
+  {\par}

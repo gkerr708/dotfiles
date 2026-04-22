@@ -1,56 +1,49 @@
 #!/bin/bash
 
-# Check arguments
-if [ "$#" -ne 2 ]; then
-    echo "Usage: $0 <template_name> <new_file_name>"
-    echo "Available templates: assignment, paper, slides"
-    exit 1
-fi
+SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+TEMPLATE_DIR="$SCRIPT_DIR/../latex_templates"
 
-TEMPLATE_DIR="$HOME/latex_templates"
+usage() {
+    echo "Usage: $0 <template> <output>"
+    echo ""
+    echo "Templates:"
+    echo "  simple   <dir>        Single-file document (main.tex only)"
+    echo "  complex  <dir>        Multi-file document (main.tex, preamble.sty, refs.bib)"
+    echo "  slides   <dir>        Beamer presentation (main.tex, preamble.sty)"
+    exit 1
+}
+
+[ "$#" -ne 2 ] && usage
 
 TEMPLATE_NAME="$1"
-NEW_FILE_NAME="$2"
-DEST_DIR="$(dirname "$NEW_FILE_NAME")"
+OUTPUT="$2"
 
 case "$TEMPLATE_NAME" in
-    assignment)
-        TEMPLATE_FILE="$TEMPLATE_DIR/assignment.tex"
-        CONFIG_FILE="$TEMPLATE_DIR/custom_config.sty"
+    simple)
+        SRC="$TEMPLATE_DIR/simple.tex"
+        [ ! -f "$SRC" ] && { echo "Error: Missing $SRC"; exit 1; }
+        mkdir -p "$OUTPUT"
+        cp "$SRC" "$OUTPUT/main.tex"
+        echo "Created $OUTPUT/main.tex"
         ;;
-    paper)
-        TEMPLATE_FILE="$TEMPLATE_DIR/paper.tex"
-        CONFIG_FILE="$TEMPLATE_DIR/custom_config.sty"
+    complex)
+        SRC_DIR="$TEMPLATE_DIR/complex"
+        [ ! -d "$SRC_DIR" ] && { echo "Error: Missing $SRC_DIR"; exit 1; }
+        mkdir -p "$OUTPUT"
+        cp "$SRC_DIR"/* "$OUTPUT/"
+        echo "Created $OUTPUT/ with:"
+        ls "$OUTPUT/"
         ;;
     slides)
-        TEMPLATE_FILE="$TEMPLATE_DIR/slides.tex"
-        CONFIG_FILE="$TEMPLATE_DIR/custom_config_slides.sty"
+        SRC_DIR="$TEMPLATE_DIR/slides"
+        [ ! -d "$SRC_DIR" ] && { echo "Error: Missing $SRC_DIR"; exit 1; }
+        mkdir -p "$OUTPUT"
+        cp "$SRC_DIR"/* "$OUTPUT/"
+        echo "Created $OUTPUT/ with:"
+        ls "$OUTPUT/"
         ;;
     *)
-        echo "Error: Invalid template name. Use: assignment, paper, slides."
-        exit 1
+        echo "Error: Unknown template '$TEMPLATE_NAME'"
+        usage
         ;;
 esac
-
-# Checks
-for f in "$TEMPLATE_FILE" "$CONFIG_FILE"; do
-    if [ ! -f "$f" ]; then
-        echo "Error: Missing file $f"
-        exit 1
-    fi
-done
-
-# Create destination directory if needed
-mkdir -p "$DEST_DIR"
-
-# Copy files
-cp "$TEMPLATE_FILE" "$NEW_FILE_NAME"
-cp "$CONFIG_FILE" "$DEST_DIR/$(basename "$CONFIG_FILE")"
-
-if [ $? -eq 0 ]; then
-    echo "Created $NEW_FILE_NAME"
-    echo "Copied $(basename "$CONFIG_FILE") to $DEST_DIR"
-else
-    echo "Error: File creation failed"
-    exit 1
-fi
