@@ -1,0 +1,64 @@
+
+-- nvim-tree config kept for reference but disabled in favour of yazi.nvim
+--
+-- return {
+--   {
+--     "nvim-tree/nvim-tree.lua",
+--     dependencies = { "nvim-tree/nvim-web-devicons" },
+--     config = function()
+--       local nvimtree = require("nvim-tree")
+--       require("nvim-web-devicons").setup { default = true }
+--       vim.g.loaded_netrw = 1
+--       vim.g.loaded_netrwPlugin = 1
+--       vim.cmd([[ highlight NvimTreeFolderArrowClosed guifg=#3FC5FF ]])
+--       vim.cmd([[ highlight NvimTreeFolderArrowOpen guifg=#3FC5FF ]])
+--       vim.keymap.set('n', '<Leader>j', ':NvimTreeToggle<CR>') -- opens nerdtree file explorer
+--       nvimtree.setup({
+-- 		git = {
+-- 		  enable = true,
+-- 		  ignore = false,
+-- 		  show_on_dirs = true,
+-- 		  timeout = 500,
+-- 		},
+--         sort = {
+--           sorter = "case_sensitive",
+--         },
+--         view = {
+--           width = 40,
+--         },
+--         renderer = {
+--           group_empty = true,
+--           icons = {
+--             show = {
+--               file = true,
+--               folder = true,
+--               folder_arrow = false,
+--               git = true,
+--             },
+--             glyphs = {
+--               folder = {
+--                 default = "",
+--                 open = "",
+--                 empty = "",
+--                 empty_open = "",
+--                 symlink = "",
+--                 symlink_open = "",
+--               },
+--             },
+--           },
+--         },
+-- 		filters = {
+--   		  dotfiles = false,    -- show dotfiles
+--   		  git_ignored = false, -- show git-ignored files
+--   		},
+--         actions = {
+--           open_file = {
+--             window_picker = {},
+--           },
+--         },
+--       })
+--     end,
+--   },
+-- }
+
+return {}

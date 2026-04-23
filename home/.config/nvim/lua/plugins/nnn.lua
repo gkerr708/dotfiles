@@ -1,0 +1,22 @@
+return {
+  --{
+  --  "mcchrish/nnn.vim",
+  --  lazy = false, -- needed so it can catch `nvim .`
+  --  init = function()
+  --    -- must be set BEFORE the plugin loads
+  --    vim.g["nnn#replace_netrw"] = 1
+  --    vim.g["nnn#layout"] = { window = { width = 0.9, height = 0.8, highlight = "Debug" } }
+  --    vim.g["nnn#set_default_mappings"] = 0
+  --    vim.g["nnn#command"] = "nnn -Pd"   -- preview/cwd sync if you use a previewer
+  --    vim.g["nnn#preserve"] = 1          -- remember last dir
+  --    vim.g["nnn#action"] = {
+  --      ["<c-t>"] = "tab split",
+  --      ["<c-x>"] = "split",
+  --      ["<c-v>"] = "vsplit",
+  --    }
+  --  end,
+  --  config = function()
+  --    vim.keymap.set("n", "<leader>f", ":NnnPicker<CR>", { desc = "Open nnn file picker" })
+  --  end,
+  --}
+}
