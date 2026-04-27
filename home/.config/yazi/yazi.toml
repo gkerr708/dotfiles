@@ -2,15 +2,20 @@
 linemode = "size"
 show_hidden = true
 show_symlink = true
+# e23
+
 [preview]
 max_width = 1000
 max_height = 1000
 image_filter = "triangle"
+
 [tasks]
 micro_workers = 10
 macro_workers = 10
+
 [log]
 enabled = false
+
 [opener]
 edit = [
   { run = "$EDITOR %s", block = true, for = "unix" },
@@ -34,6 +39,7 @@ open_office = [
 extract = [
   { run = "unar %s", desc = "Extract here", block = true, for = "unix" },
 ]
+
 [open]
 rules = [
   { mime = "image/*",                             use = "view_image" },
@@ -54,3 +60,15 @@ rules = [
   { mime = "application/octet-stream",            use = "edit" },
   { mime = "*",                                   use = "edit" },
 ]
+
+[[plugin.prepend_fetchers]]
+id    = "git" # Remove if Yazi > v26.1.22
+url   = "*"
+run   = "git"
+group = "git"
+
+[[plugin.prepend_fetchers]]
+id    = "git" # Remove if Yazi > v26.1.22
+url   = "*/"
+run   = "git"
+group = "git"
