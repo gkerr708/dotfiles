@@ -6,6 +6,11 @@
 * `udisksctl unmount -b /dev/sda1`
 * `udisksctl power-off -b /dev/sda`
 
+## Audio
+* `wiremix`
+    * [link](https://github.com/tsowell/wiremix)
+    * Requires PipeWire.
+
 ## Network (nmcli)
 * `nmcli device status` — show all devices
 * `nmcli radio wifi on` — enable wifi
@@ -20,7 +25,7 @@
 * `bluetoothctl power on`
 * `bluetoothctl scan on` — discover devices
 * `bluetoothctl pair <MAC>`
-* `bluetoothctl connect <MAC>`
+* `bluetoothctl connect <MAC>` -- Use tab if it's already known
 * `bluetoothctl trust <MAC>` — auto-connect on boot
 * `bluetoothctl devices` — list known devices
 
