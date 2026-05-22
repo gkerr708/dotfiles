@@ -59,4 +59,4 @@ if [ -z "${req}${venv}" ]; then
 fi
 
 # Output
-printf " 🐍 %s %s " "${req}" "${venv}"
+printf "py %s %s " "${req}" "${venv}"
