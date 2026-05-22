@@ -17,3 +17,4 @@ home/.config/tmux/plugins/
 
 # Backup files created by setup-arch.sh — never commit these
 **/*.bak
+home/.config/tmux/plugins/
