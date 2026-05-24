@@ -6,6 +6,19 @@
 * `udisksctl unmount -b /dev/sda1`
 * `udisksctl power-off -b /dev/sda`
 
+## Date and Time
+* `timedatectl status` 
+* `timedatectl list-timezones`
+* `timedatectl set-timezone Area/Location`
+
+### Time sync (chrony)
+* `chronyc tracking` — check sync status, offset, stratum
+* `chronyc sources` — list NTP servers (`^*` = active)
+* `chronyc activity` — quick "is it working" check
+* `sudo systemctl enable --now chronyd` — start on boot
+* `sudo systemctl disable --now systemd-timesyncd` — required, conflicts with chrony
+* `sudo chronyc makestep` — force immediate resync
+
 ## Audio
 * `wiremix`
     * [link](https://github.com/tsowell/wiremix)
