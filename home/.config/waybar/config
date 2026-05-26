@@ -59,8 +59,8 @@
   "hyprland/window": { "max-length": 35, "separate-outputs": true, "rewrite": { ".* - Mozilla Firefox": "Firefox" } },
 
   // --- Center ---
-  "clock#date": { "format": "  {:%a %b %d}", "tooltip-format": "{:%Y-%m-%d}" },
-  "clock#time": { "format": "  {:%I:%M %p}", "interval": 1, "tooltip-format": "{:%Z}" }, 
+  "clock#date": { "format": "  {:%a %b %d}", "tooltip-format": "{:%Y-%m-%d}", "timezone": "America/Phoenix" },
+  "clock#time": { "format": "  {:%I:%M %p}", "interval": 1, "tooltip-format": "{:%Z}", "timezone": "America/Phoenix" },
 
 
   // --- Right ---
