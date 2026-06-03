@@ -207,6 +207,9 @@ alias dve='deactivate'
 # QMK
 alias qmk_compile='qmk compile -kb crkbd/rev1 -km'
 
+# ESP-IDF
+alias get_idf='source /opt/esp-idf/export.sh'
+
 # Custom scripts
 alias start_server='python -m http.server 8000'
 alias new_tex='$HOME/bash_scripts/new_tex.sh'
