@@ -27,6 +27,7 @@ return {
 		    --'r', 
 		    --'rnoweb',
 		    'python',
+        'latex',
         })
 
       -- Enable treesitter highlighting for all filetypes that have a parser
