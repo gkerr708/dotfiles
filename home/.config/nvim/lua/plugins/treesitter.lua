@@ -1,21 +1,38 @@
--- lua/plugins/treesitter.lua
 return {
   {
     'nvim-treesitter/nvim-treesitter',
-    branch = 'master',
+    lazy = false,
     build = ':TSUpdate',
-    main = 'nvim-treesitter.configs',
-    opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html',
-        'lua', 'luadoc', 'markdown', 'markdown_inline', 'query',
-        'vim', 'vimdoc', 'yaml', 'json', 'javascript', 'typescript',
-        'css', 'scss', 'tsx', 'python', 'go', 'rust', 'r', 'rnoweb', 'yaml', 'latex'},
-      auto_install = true,
-      highlight = {
-        enable = true,
-        additional_vim_regex_highlighting = { 'ruby' },
-      },
-      indent = { enable = true, disable = { 'ruby' } },
-    },
+    config = function()
+      require('nvim-treesitter').setup({
+        install_dir = vim.fn.stdpath('data') .. '/site',
+      })
+
+      -- Install parsers not already bundled with Neovim 0.12+
+      -- (bundled: bash, c, lua, markdown, markdown_inline, python, query, vim, vimdoc)
+      require('nvim-treesitter').install({
+        'diff',
+		    'html',
+		    'lua',
+		    'luadoc',
+		    --'yaml', 
+		    'json',
+		    --'javascript', 
+		    'typescript',
+            'css',
+		    'scss',
+		    'tsx',
+		    --'go', 
+		    'rust',
+		    --'r', 
+		    --'rnoweb',
+		    'python',
+        })
+
+      -- Enable treesitter highlighting for all filetypes that have a parser
+      vim.api.nvim_create_autocmd('FileType', {
+        callback = function() pcall(vim.treesitter.start) end,
+      })
+    end,
   },
 }
