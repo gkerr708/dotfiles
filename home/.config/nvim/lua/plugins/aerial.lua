@@ -364,6 +364,6 @@ return {
     },
   })
 
-    vim.keymap.set("n", "<leader>b", "<cmd>AerialToggle<CR>")
+    vim.keymap.set("n", "<leader>g", "<cmd>AerialToggle<CR>")
   end,
 }
