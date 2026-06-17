@@ -33,6 +33,9 @@
 * `nmcli connection up <name>` — reconnect to saved network
 * `nmcli connection delete <name>` — forget network
 
+## Wifi Speed Test
+* `speedtest-cli`
+
 ## Bluetooth (bluetoothctl)
 * `bluetoothctl` — open interactive shell, or prefix commands below
 * `bluetoothctl power on`
