@@ -204,6 +204,9 @@ alias pip='pip3'
 alias ave='source .venv/bin/activate'
 alias dve='deactivate'
 
+# esp-idf
+alias esp='source /opt/esp-idf/export.sh'
+
 # QMK
 alias qmk_compile='qmk compile -kb crkbd/rev1 -km'
 
