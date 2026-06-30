@@ -31,7 +31,7 @@ play_video = [
   { run = "mpv %s", desc = "Play video", for = "unix" },
 ]
 view_pdf = [
-  { run = "zathura %s", desc = "View PDF", for = "unix" },
+  { run = "zathura %s", desc = "View PDF", orphan = true, for = "unix" },
 ]
 open_office = [
   { run = "libreoffice %s", desc = "Open in LibreOffice", for = "unix" },
