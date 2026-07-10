@@ -104,7 +104,7 @@ alias theme='kitty +kitten themes'
 # File operations
 alias cp='cp -i'
 alias mv='mv -i' # -i for interactive (means it will ask before overwriting)
-#alias rm='trash -v'
+alias rsyncp='rsync -ah --info=progress2'
 
 # Update the wallpaper 
 alias update_wallpaper="pkill hyprpaper && hyprpaper &"
