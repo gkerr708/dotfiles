@@ -33,6 +33,22 @@
 * `nmcli connection up <name>` — reconnect to saved network
 * `nmcli connection delete <name>` — forget network
 
+### WPA-Enterprise (e.g. Dalhousie campus wifi)
+Regular `nmcli device wifi connect` won't work — enterprise networks need PEAP/MSCHAPv2 with an identity + password:
+```
+sudo nmcli connection add type wifi ifname "*" con-name "Dalhousie" ssid "Dalhousie" \
+  wifi-sec.key-mgmt wpa-eap \
+  802-1x.eap peap \
+  802-1x.phase2-auth mschapv2 \
+  802-1x.identity "gv585095@dal.ca" \
+  802-1x.password "PASTE_PASSWORD_HERE"
+
+sudo nmcli connection up "Dalhousie"
+```
+* `802-1x.identity` — school email/username
+* If auth fails, try adding `802-1x.anonymous-identity "@dal.ca"`, or `802-1x.eap ttls` instead of `peap` (depends what the campus RADIUS server expects)
+* `nmcli connection delete "Dalhousie"` — remove the profile
+
 ## Wifi Speed Test
 * `speedtest-cli`
 
