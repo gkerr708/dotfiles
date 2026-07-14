@@ -18,7 +18,6 @@ PACMAN_PKGS=(
     bat
     starship
     git-delta
-    alacritty
     kitty
     hyprland
     hyprlock
@@ -32,19 +31,41 @@ PACMAN_PKGS=(
     tmux
     rofi
     mpv
-    ranger
+    imv                     # image viewer
+    zathura                 # PDF viewer
+    zathura-pdf-poppler     # PDF rendering backend for zathura (zathura alone can't open PDFs without this)
     btop
+
+    base-devel              # provides fakeroot, required for makepkg
+    debugedit               # required for makepkg debug package splitting
+    nodejs                  # required for pyright and other Mason-managed LSP servers
+    npm                     # required alongside nodejs for Mason installs (nvim-treesitter/Mason)
 )
 
 AUR_PKGS=(
     autojump-git
-    awww-bin               # wallpaper daemon used in hyprland.conf
+    tree-sitter-cli         # required by nvim-treesitter to compile parsers (newer versions shell out to the tree-sitter CLI binary instead of building parsers internally)
 )
 
 FONTS=(
-    ttf-meslo-nerd         # MesloLGS Nerd Font (used by alacritty)
     ttf-jetbrains-mono-nerd # JetBrainsMono Nerd Font (used by kitty)
 )
+
+# ── AUR helper bootstrap ────────────────────────────────────────────────────────
+# yay itself must be built manually before any `yay -S` (AUR_PKGS) calls will work.
+
+ensure_yay() {
+    if command -v yay &>/dev/null; then
+        return
+    fi
+
+    echo -e "${YELLOW}yay not found — bootstrapping yay-bin from AUR...${RC}"
+    local tmp_dir
+    tmp_dir="$(mktemp -d)"
+    git clone https://aur.archlinux.org/yay-bin.git "$tmp_dir/yay-bin"
+    (cd "$tmp_dir/yay-bin" && makepkg -si)
+    rm -rf "$tmp_dir"
+}
 
 check_packages() {
     echo -e "${YELLOW}Package checklist:${RC}"
@@ -98,13 +119,11 @@ link_dotfiles() {
     fi
 
     mkdir -p \
-        "$HOME/.config/alacritty" \
         "$HOME/.config/btop" \
         "$HOME/.config/git" \
         "$HOME/.config/hypr" \
         "$HOME/.config/kitty" \
         "$HOME/.config/mpv" \
-        "$HOME/.config/ranger" \
         "$HOME/.config/rofi" \
         "$HOME/.config/tmux" \
         "$HOME/.config/wofi"
@@ -115,6 +134,7 @@ link_dotfiles() {
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
+ensure_yay
 check_packages
 link_dotfiles
 
