@@ -32,6 +32,7 @@
 * `nmcli connection show` — list saved connections
 * `nmcli connection up <name>` — reconnect to saved network
 * `nmcli connection delete <name>` — forget network
+* `sudo systemctl restart NetworkManager` - reconnect to wifi
 
 ### WPA-Enterprise (e.g. Dalhousie campus wifi)
 Regular `nmcli device wifi connect` won't work — enterprise networks need PEAP/MSCHAPv2 with an identity + password:
