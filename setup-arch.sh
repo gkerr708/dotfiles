@@ -28,6 +28,8 @@ PACMAN_PKGS=(
     playerctl
     pipewire
     wireplumber
+    bluez
+    bluez-utils
     tmux
     rofi
     mpv
