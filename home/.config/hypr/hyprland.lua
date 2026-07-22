@@ -6,13 +6,13 @@
 ---------------
 
 -- Monitors
-local laptop_monitor   = "eDP-1"
-local work_monitor     = "HDMI-A-2" -- Thinkpad work
-local xps_home_monitor = "DP-1"     -- XPS-13 work
--- local xps_home_monitor = "DP-3"  -- XPS-13 home
+local internal_monitor      = "eDP-1"      -- built-in panel (both machines)
+local thinkpad_ext_monitor  = "HDMI-A-2"   -- Thinkpad's external/dock monitor
+local xps_ext_monitor       = "DP-1"       -- XPS's external monitor (work dock)
+-- local xps_ext_monitor    = "DP-3"       -- XPS's external monitor (home dock)
 
 -- Scale
-local laptop_scale = 1.25
+local internal_scale = 1.25
 
 -- Programs
 local terminal    = "kitty"
@@ -21,8 +21,8 @@ local menu        = "wofi --show drun --style ~/.config/wofi/style.css"
 local browser     = "firefox"
 
 -- Wallpapers
-local wallpaper_laptop     = "/home/gkerr/images/arch1.jpg"
-local wallpaper_extern     = "/home/gkerr/images/arch5.jpg"
+local wallpaper_internal     = "/home/gkerr/images/arch1.jpg"
+local wallpaper_external     = "/home/gkerr/images/arch5.jpg"
 local wallpaper_transition = "any"
 local wallpaper_duration   = 0.7
 
@@ -51,6 +51,17 @@ local repeat_delay = 250
 local mainMod = "SUPER"
 local altMod  = "ALT"
 
+-- Machine detection (Thinkpad = work, anything else = XPS/home)
+local function is_thinkpad()
+    local f = io.open("/sys/class/dmi/id/sys_vendor", "r")
+    if not f then return false end
+    local vendor = f:read("*l")
+    f:close()
+    return vendor ~= nil and vendor:match("LENOVO") ~= nil
+end
+
+local on_thinkpad = is_thinkpad()
+
 
 ---------------
 -- Display   --
@@ -68,61 +79,41 @@ hl.on("hyprland.start", function()
     -- Wallpapers — uncomment the block for your current setup
     -- hl.exec_cmd("swww-daemon")
     -- Thinkpad
-    -- hl.exec_cmd("swww img -o " .. laptop_monitor .. " " .. wallpaper_laptop .. " --transition-type " .. wallpaper_transition .. " --transition-duration " .. wallpaper_duration)
-    -- hl.exec_cmd("swww img -o " .. work_monitor   .. " " .. wallpaper_extern .. " --transition-type " .. wallpaper_transition .. " --transition-duration " .. wallpaper_duration)
+    -- hl.exec_cmd("swww img -o " .. internal_monitor .. " " .. wallpaper_internal .. " --transition-type " .. wallpaper_transition .. " --transition-duration " .. wallpaper_duration)
+    -- hl.exec_cmd("swww img -o " .. thinkpad_ext_monitor   .. " " .. wallpaper_external .. " --transition-type " .. wallpaper_transition .. " --transition-duration " .. wallpaper_duration)
     -- XPS-13
-    -- hl.exec_cmd("swww img -o " .. laptop_monitor     .. " " .. wallpaper_laptop .. " --transition-type " .. wallpaper_transition .. " --transition-duration " .. wallpaper_duration)
-    -- hl.exec_cmd("swww img -o " .. xps_work_monitor   .. " " .. wallpaper_extern .. " --transition-type " .. wallpaper_transition .. " --transition-duration " .. wallpaper_duration)
-    -- hl.exec_cmd("swww img -o " .. xps_home_monitor   .. " " .. wallpaper_extern .. " --transition-type " .. wallpaper_transition .. " --transition-duration " .. wallpaper_duration)
+    -- hl.exec_cmd("swww img -o " .. internal_monitor .. " " .. wallpaper_internal .. " --transition-type " .. wallpaper_transition .. " --transition-duration " .. wallpaper_duration)
+    -- hl.exec_cmd("swww img -o " .. xps_ext_monitor  .. " " .. wallpaper_external .. " --transition-type " .. wallpaper_transition .. " --transition-duration " .. wallpaper_duration)
 end)
 
 -- Monitors
 hl.monitor({ output = "",             mode = "preferred", position = "auto", scale = "auto" })
-hl.monitor({ output = laptop_monitor, mode = "preferred", position = "auto", scale = laptop_scale })
+hl.monitor({ output = internal_monitor, mode = "preferred", position = "auto", scale = internal_scale })
 
 
 -------------------
--- MONITORS Work --
+-- MONITORS      --
 -------------------
 
--- Thinkpad — enabled
-hl.workspace_rule({ workspace = "1", monitor = laptop_monitor, persistent = true })
-hl.workspace_rule({ workspace = "2", monitor = laptop_monitor, persistent = true })
-hl.workspace_rule({ workspace = "3", monitor = laptop_monitor, persistent = true })
-hl.workspace_rule({ workspace = "4", monitor = work_monitor,   persistent = true })
-hl.workspace_rule({ workspace = "5", monitor = work_monitor,   persistent = true })
-hl.workspace_rule({ workspace = "6", monitor = work_monitor,   persistent = true })
-
--- XPS-13 work — uncomment to use
--- hl.workspace_rule({ workspace = "1", monitor = laptop_monitor,   persistent = true })
--- hl.workspace_rule({ workspace = "2", monitor = laptop_monitor,   persistent = true })
--- hl.workspace_rule({ workspace = "3", monitor = laptop_monitor,   persistent = true })
--- hl.workspace_rule({ workspace = "4", monitor = xps_work_monitor, persistent = true })
--- hl.workspace_rule({ workspace = "5", monitor = xps_work_monitor, persistent = true })
--- hl.workspace_rule({ workspace = "6", monitor = xps_work_monitor, persistent = true })
-
-
--------------------
--- MONITORS Home --
--------------------
-
--- XPS-13 home (two monitors) — uncomment to use
--- hl.workspace_rule({ workspace = "1", monitor = laptop_monitor,   persistent = true })
--- hl.workspace_rule({ workspace = "2", monitor = laptop_monitor,   persistent = true })
--- hl.workspace_rule({ workspace = "3", monitor = laptop_monitor,   persistent = true })
--- hl.workspace_rule({ workspace = "4", monitor = xps_home_monitor, persistent = true })
--- hl.workspace_rule({ workspace = "5", monitor = xps_home_monitor, persistent = true })
--- hl.workspace_rule({ workspace = "6", monitor = xps_home_monitor, persistent = true })
-
--- Single monitor home — uncomment to use
--- hl.workspace_rule({ workspace = "1", monitor = xps_home_monitor, persistent = true })
--- hl.workspace_rule({ workspace = "2", monitor = xps_home_monitor, persistent = true })
--- hl.workspace_rule({ workspace = "3", monitor = xps_home_monitor, persistent = true })
--- hl.workspace_rule({ workspace = "4", monitor = xps_home_monitor, persistent = true })
--- hl.workspace_rule({ workspace = "5", monitor = xps_home_monitor, persistent = true })
--- hl.workspace_rule({ workspace = "6", monitor = xps_home_monitor, persistent = true })
--- hl.workspace_rule({ workspace = "7", monitor = xps_home_monitor, persistent = true })
--- hl.workspace_rule({ workspace = "8", monitor = laptop_monitor,   persistent = true })
+if on_thinkpad then
+    -- Thinkpad (work) — dual monitor
+    hl.workspace_rule({ workspace = "1", monitor = internal_monitor, persistent = true })
+    hl.workspace_rule({ workspace = "2", monitor = internal_monitor, persistent = true })
+    hl.workspace_rule({ workspace = "3", monitor = internal_monitor, persistent = true })
+    hl.workspace_rule({ workspace = "4", monitor = thinkpad_ext_monitor,   persistent = true })
+    hl.workspace_rule({ workspace = "5", monitor = thinkpad_ext_monitor,   persistent = true })
+    hl.workspace_rule({ workspace = "6", monitor = thinkpad_ext_monitor,   persistent = true })
+else
+    -- XPS-13 (home) — single monitor
+    hl.workspace_rule({ workspace = "1", monitor = xps_ext_monitor, persistent = true })
+    hl.workspace_rule({ workspace = "2", monitor = xps_ext_monitor, persistent = true })
+    hl.workspace_rule({ workspace = "3", monitor = xps_ext_monitor, persistent = true })
+    hl.workspace_rule({ workspace = "4", monitor = xps_ext_monitor, persistent = true })
+    hl.workspace_rule({ workspace = "5", monitor = xps_ext_monitor, persistent = true })
+    hl.workspace_rule({ workspace = "6", monitor = xps_ext_monitor, persistent = true })
+    hl.workspace_rule({ workspace = "7", monitor = xps_ext_monitor, persistent = true })
+    hl.workspace_rule({ workspace = "8", monitor = internal_monitor,   persistent = true })
+end
 
 
 ---------------------------
