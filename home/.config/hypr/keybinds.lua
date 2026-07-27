@@ -6,7 +6,7 @@ local altMod  = V.altMod
 
 -- Basic
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
-hl.bind(mainMod .. " + W", hl.dsp.window.kill())
+hl.bind(mainMod .. " + Z", hl.dsp.window.kill())
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd("kitty --class wiremix -e wiremix"))
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(V.menu))
 hl.bind(mainMod .. " + T", hl.dsp.exec_cmd(V.terminal))
