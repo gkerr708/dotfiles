@@ -1,3 +1,4 @@
 set selection-clipboard clipboard
 set adjust-open "none"
 set zoom-center false
+set guioptions "sh"
