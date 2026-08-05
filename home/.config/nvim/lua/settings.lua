@@ -7,7 +7,7 @@ vim.o.softtabstop = 4
 vim.o.hlsearch = false
 vim.wo.number = true
 vim.wo.relativenumber = true
-vim.wo.wrap = false    -- Disable text wrapping
+vim.wo.wrap = false    -- Disable text wrapping by default
 vim.o.mouse = 'a'
 vim.opt.clipboard = 'unnamedplus' -- not sure which one is correct
 vim.o.breakindent = true
@@ -64,7 +64,23 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 -- Set the highlight group for SignColumn
 vim.cmd [[highlight SignColumn guibg=bg]]
 
--- Enable text wrapping for .tex files
-vim.cmd[[autocmd FileType tex,markdown,html setlocal wrap]]
+-- Enable text wrapping for prose filetypes (.tex, markdown, html), keep it
+-- off everywhere else (python, rust, etc). Re-applied on BufEnter too, since
+-- 'wrap' is window-local and switching between already-loaded buffers in the
+-- same window doesn't re-fire FileType.
+local wrap_filetypes = { tex = true, markdown = true, html = true }
+vim.api.nvim_create_autocmd({ "FileType", "BufEnter" }, {
+  group = vim.api.nvim_create_augroup("prose_wrap", { clear = true }),
+  pattern = "*",
+  callback = function()
+    if wrap_filetypes[vim.bo.filetype] then
+      vim.wo.wrap = true
+      vim.wo.linebreak = true
+    else
+      vim.wo.wrap = false
+      vim.wo.linebreak = false
+    end
+  end,
+})
 
 vim.g.WebDevIconsNerdTreeAfterGlyphPadding = '  '
