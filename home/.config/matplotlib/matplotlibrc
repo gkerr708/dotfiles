@@ -1,0 +1,80 @@
+## Global matplotlib defaults.
+## Loaded automatically by matplotlib for every script/notebook (no plt.style.use needed).
+## Styled after standard physics-journal figures (APS/Physical Review house style):
+## boxed axes, inward major+minor ticks on all four sides, serif + Computer-Modern
+## mathtext, no grid, thin lines, framed legend, white background.
+## Series colors are the dataviz skill's validated colorblind-safe categorical set.
+## Opt-in variants: plt.style.use('dark') / plt.style.use('minimal')  (see stylelib/)
+
+## ── Figure ──────────────────────────────────────────────────────────────
+figure.figsize    : 5, 3.75
+figure.dpi        : 100
+figure.facecolor  : ffffff
+figure.constrained_layout.use : True
+
+savefig.dpi       : 300
+savefig.facecolor : ffffff
+savefig.bbox      : tight
+savefig.pad_inches: 0.05
+
+## ── Axes ────────────────────────────────────────────────────────────────
+axes.facecolor    : ffffff
+axes.edgecolor     : 000000
+axes.linewidth      : 0.8
+axes.labelcolor     : 000000
+axes.titlecolor     : 000000
+axes.titlesize      : 11
+axes.titleweight    : normal
+axes.labelsize      : 10
+axes.labelweight    : normal
+axes.axisbelow      : True
+axes.spines.top      : True
+axes.spines.right    : True
+axes.grid           : False
+axes.formatter.use_mathtext : True
+axes.prop_cycle : cycler('color', ['2a78d6', 'eb6834', '1baf7a', 'eda100', 'e87ba4', '008300', '4a3aa7', 'e34948'])
+
+## ── Ticks ───────────────────────────────────────────────────────────────
+xtick.color          : 000000
+ytick.color          : 000000
+xtick.labelsize      : 9
+ytick.labelsize      : 9
+xtick.direction      : in
+ytick.direction      : in
+xtick.top            : True
+ytick.right          : True
+xtick.minor.visible  : True
+ytick.minor.visible  : True
+xtick.major.size     : 4
+ytick.major.size     : 4
+xtick.minor.size     : 2
+ytick.minor.size     : 2
+xtick.major.width    : 0.8
+ytick.major.width    : 0.8
+xtick.minor.width    : 0.6
+ytick.minor.width    : 0.6
+
+## ── Lines & markers ────────────────────────────────────────────────────
+lines.linewidth      : 1.2
+lines.markersize     : 5
+lines.markeredgewidth: 0.8
+errorbar.capsize     : 3
+scatter.edgecolors   : none
+
+## ── Legend ──────────────────────────────────────────────────────────────
+legend.frameon    : True
+legend.edgecolor  : 000000
+legend.fancybox   : False
+legend.framealpha : 1.0
+legend.fontsize   : 9
+legend.loc        : best
+
+## ── Text / fonts ────────────────────────────────────────────────────────
+font.family      : serif
+font.serif       : Nimbus Roman, Times New Roman, FreeSerif, DejaVu Serif, serif
+mathtext.fontset : cm
+text.color       : 000000
+
+## ── Saving ──────────────────────────────────────────────────────────────
+pdf.fonttype : 42
+svg.fonttype : none

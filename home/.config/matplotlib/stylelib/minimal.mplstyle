@@ -1,0 +1,14 @@
+## Stripped-down look for slides/insets: no grid, no spines, just the data.
+## Usage: plt.style.use('minimal')
+
+axes.grid          : False
+axes.spines.top    : False
+axes.spines.right  : False
+axes.spines.left   : False
+axes.spines.bottom : False
+
+xtick.bottom : False
+ytick.left   : False
+
+axes.labelsize : 12
+lines.linewidth : 2.5

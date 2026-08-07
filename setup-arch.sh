@@ -125,6 +125,7 @@ link_dotfiles() {
         "$HOME/.config/git" \
         "$HOME/.config/hypr" \
         "$HOME/.config/kitty" \
+        "$HOME/.config/matplotlib/stylelib" \
         "$HOME/.config/mpv" \
         "$HOME/.config/rofi" \
         "$HOME/.config/tmux" \

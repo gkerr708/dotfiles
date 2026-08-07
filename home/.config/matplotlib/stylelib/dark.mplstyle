@@ -1,0 +1,22 @@
+## Opt-in dark counterpart to the global matplotlibrc.
+## Usage: plt.style.use('dark')
+## Same categorical hues, stepped for a dark surface (dataviz skill palette).
+
+figure.facecolor  : 1a1a19
+savefig.facecolor : 1a1a19
+
+axes.facecolor   : 1a1a19
+axes.edgecolor    : 383835
+axes.labelcolor   : ffffff
+axes.titlecolor   : ffffff
+axes.prop_cycle : cycler('color', ['3987e5', 'd95926', '199e70', 'c98500', 'd55181', '008300', '9085e9', 'e66767'])
+
+grid.color : 2c2c2a
+
+xtick.color : c3c2b7
+ytick.color : c3c2b7
+
+text.color : ffffff
+
+legend.labelcolor : ffffff
+legend.edgecolor  : c3c2b7
