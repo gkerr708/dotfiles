@@ -1,0 +1,42 @@
+# ~/.visidatarc — VisiData configuration (Python)
+# Docs: https://visidata.org/docs/options/  |  in-app: Space -> "open-config"
+
+from visidata import vd, options
+
+# ── Safety ────────────────────────────────────────────────────────────────────
+options.quitguard = True        # confirm before quitting with unsaved changes
+options.undo      = True        # U / R to undo/redo (default on, made explicit)
+
+# ── Display ───────────────────────────────────────────────────────────────────
+options.disp_menu          = True      # top menu bar
+options.disp_splitwin_pct  = 0         # no split pane by default (Z to toggle)
+options.disp_float_fmt     = '{:.4f}'  # sensible float precision
+options.disp_date_fmt      = '%Y-%m-%d'
+options.null_value         = None      # what counts as null for isNull/aggregators
+options.wrap               = False     # no wrapping in the text viewer
+
+# ── Data loading ──────────────────────────────────────────────────────────────
+options.encoding    = 'utf-8'
+options.header      = 1        # first row is the header, for csv/tsv
+options.csv_dialect = 'excel'
+options.load_lazy   = False    # load sheets eagerly; flip to True for huge files
+
+# ── Analysis ──────────────────────────────────────────────────────────────────
+options.histogram_bins = 20    # used by the frequency-table histogram
+
+# ── Integration ───────────────────────────────────────────────────────────────
+# Wayland clipboard, matching the rest of this setup (hypr/waybar)
+options.clipboard_copy_cmd = 'wl-copy'
+
+# ── Vim-friendly key additions ────────────────────────────────────────────────
+# VisiData is already largely vim-like out of the box: hjkl, gg, G, /, n,
+# Ctrl+F/Ctrl+B, q. These fill in the few keys vim muscle memory expects that
+# VisiData leaves unbound. Nothing here overwrites an existing binding.
+vd.bindkey('0',  'go-leftmost')   # same as gh
+vd.bindkey('dd', 'cut-row')       # same as x, but vim's spelling
+
+# Deliberately NOT rebound, because VisiData already uses them for its own idioms:
+#   u   = unselect-row   (undo is Shift+U, redo is Shift+R)
+#   $   = type-currency  (go-rightmost is gl or g$)
+#   ^   = rename-col
+#   N   = searchr-next    (reverse search already works)

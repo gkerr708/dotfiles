@@ -16,3 +16,5 @@ require("settings")
 require("key_mappings")
 --require("custom.float_bg") -- setup transparent floating backgrounds
 -- require("custom.math").setup()
+require("custom.visidata").setup()
+require("custom.sqlite_pick").setup()
