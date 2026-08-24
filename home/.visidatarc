@@ -40,3 +40,7 @@ vd.bindkey('dd', 'cut-row')       # same as x, but vim's spelling
 #   $   = type-currency  (go-rightmost is gl or g$)
 #   ^   = rename-col
 #   N   = searchr-next    (reverse search already works)
+options.disp_float_fmt='{:.4f}'
+options.quitguard=True
+options.histogram_bins=20
+options.numeric_binning=True
