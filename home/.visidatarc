@@ -3,6 +3,56 @@
 
 from visidata import vd, options
 
+# ── Theme: Catppuccin Mocha ─────────────────────────────────────────────────
+# Matches the Mocha flavor used by kitty/yazi/starship/nvim elsewhere in this
+# repo. kitty's catppuccin-mocha.conf remaps terminal ANSI colors 0-15 to the
+# Mocha palette (see ~/.config/kitty/current-theme.conf), so referencing those
+# color numbers here — rather than the 256-color cube, which kitty leaves
+# unmapped — renders the exact Mocha hex values.
+#   0/8  = Surface1 / Surface2   3/11 = Yellow    6/14 = Teal
+#   1/9  = Red                   4/12 = Blue       7   = Subtext1
+#   2/10 = Green                 5/13 = Pink       15  = Subtext0
+# '' (unset) falls through to the terminal's true default fg/bg, i.e. exact
+# Mocha Text-on-Base, so the sheet blends with the rest of the terminal.
+# Cursor row/col/header intentionally avoid 'reverse': combining it with an
+# explicit bg from an overlapping rule (e.g. current_row + current_col at
+# their intersection) swaps fg/bg unpredictably and can land on a low-contrast
+# pair. Solid bg colors compose cleanly instead — attributes like bold always
+# OR together, so the crosshair cell just ends up bold-on-Surface2.
+vd.themes['catppuccin_mocha'] = dict(
+    color_default          = '',
+    color_default_hdr      = 'bold 5',
+    color_bottom_hdr       = 'bold 5',  # the line actually shown for a normal 1-row header
+    color_current_row      = 'bold on 0',
+    color_current_col      = 'on 8',
+    color_current_hdr      = 'bold on 8',
+    color_column_sep       = '8',
+    color_key_col          = '6',
+    color_edit_cell        = '4',
+    color_selected_row     = '3',
+    color_note_row         = '3',
+    color_note_type        = '6',
+    color_warning          = '3',
+    color_error            = '1',
+    color_status           = 'bold on 0',
+    color_menu             = '15 on 0',
+    color_menu_active      = '0 on 4',
+    color_menu_help        = '8 on 0',
+    color_active_status    = '0 on 4',
+    color_inactive_status  = '8 on 0',
+    color_keystrokes       = 'bold 0 on 7',  # the small "which key you pressed" badge
+    color_longname_status  = '7',            # the command name shown next to it
+    color_working          = 'bold 2',
+    color_add_pending      = '2',
+    color_change_pending   = 'reverse 3',
+    color_delete_pending   = '1',
+    color_readonly         = 'on 0',
+    color_code             = 'bold 15 on 0',
+    color_heading          = 'bold 0 on 3',
+    plot_colors            = '1 2 3 4 5 6',
+)
+options.theme = 'catppuccin_mocha'   # View menu > Set theme (or Space > theme-input) to browse others
+
 # ── Safety ────────────────────────────────────────────────────────────────────
 options.quitguard = True        # confirm before quitting with unsaved changes
 options.undo      = True        # U / R to undo/redo (default on, made explicit)
