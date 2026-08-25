@@ -42,6 +42,9 @@ open_office = [
 extract = [
   { run = "unar %s", desc = "Extract here", block = true, for = "unix" },
 ]
+visidata = [
+  { run = 'vd %s', desc = "Open in VisiData", block = true, for = "unix" },
+]
 
 [open]
 rules = [
@@ -49,6 +52,17 @@ rules = [
   { mime = "video/*",                             use = "play_video" },
   { mime = "audio/*",                             use = "play_video" },
   { mime = "application/pdf",                     use = "view_pdf" },
+  { url  = "*.csv",                               use = "visidata" },
+  { url  = "*.tsv",                               use = "visidata" },
+  { url  = "*.db",                                use = "visidata" },
+  { url  = "*.db3",                               use = "visidata" },
+  { url  = "*.sqlite",                            use = "visidata" },
+  { url  = "*.sqlite3",                           use = "visidata" },
+  { url  = "*.duckdb",                            use = "visidata" },
+  { url  = "*.parquet",                           use = "visidata" },
+  { url  = "*.xlsx",                              use = "visidata" },
+  { url  = "*.xlsm",                              use = "visidata" },
+  { url  = "*.xls",                               use = "visidata" },
   { mime = "application/zip",                     use = "extract" },
   { mime = "application/x-tar",                   use = "extract" },
   { mime = "application/x-bzip2",                 use = "extract" },
