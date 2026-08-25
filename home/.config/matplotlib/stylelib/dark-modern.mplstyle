@@ -1,0 +1,45 @@
+## Opt-in modern-dark counterpart to the global matplotlibrc.
+## Usage: plt.style.use('dark-modern')
+## Modeled on the d2draftnet dark charts: borderless axes with a grid instead
+## of a box, thicker rounded lines, markers with a dark cutout ring, frameless
+## legend. (The bold multi-line title/subtitle/caption block in those charts
+## is hand-placed via fig.text() in Python, not something an rc file can do.)
+## See also: dark.mplstyle, the plain boxed-spine dark variant.
+
+figure.facecolor  : 1a1a19
+savefig.facecolor : 1a1a19
+
+axes.facecolor   : 1a1a19
+axes.edgecolor    : 1a1a19
+axes.labelcolor   : ffffff
+axes.labelsize    : 11
+axes.titlecolor   : ffffff
+axes.prop_cycle : cycler('color', ['3987e5', 'd95926', 'eda100', '199e70', 'd55181', '9085e9', 'e66767', '008300'])
+axes.grid          : True
+axes.spines.left   : False
+axes.spines.bottom : False
+axes.spines.top    : False
+axes.spines.right  : False
+
+grid.color     : 2e2e2c
+grid.linewidth : 0.8
+
+xtick.color     : c3c2b7
+ytick.color     : c3c2b7
+xtick.labelsize : 10
+ytick.labelsize : 10
+
+lines.linewidth       : 2.0
+lines.markersize      : 8
+lines.markeredgewidth : 2.0
+lines.markeredgecolor : 1a1a19
+lines.solid_capstyle  : round
+
+errorbar.capsize : 4
+
+text.color : ffffff
+
+legend.frameon    : False
+legend.labelcolor : ffffff
+legend.edgecolor  : c3c2b7
+legend.fontsize   : 10

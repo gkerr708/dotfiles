@@ -16,6 +16,7 @@ OUT_DIR = pathlib.Path(__file__).resolve().parent
 STYLES = {
     "default": [MPL_DIR / "matplotlibrc"],
     "dark": [MPL_DIR / "matplotlibrc", MPL_DIR / "stylelib" / "dark.mplstyle"],
+    "dark-modern": [MPL_DIR / "matplotlibrc", MPL_DIR / "stylelib" / "dark-modern.mplstyle"],
     "minimal": [MPL_DIR / "matplotlibrc", MPL_DIR / "stylelib" / "minimal.mplstyle"],
 }
 
