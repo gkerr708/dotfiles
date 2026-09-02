@@ -16,6 +16,7 @@ PACMAN_PKGS=(
     git
     neovim
     bat
+    ripgrep
     starship
     git-delta
     kitty
@@ -127,6 +128,7 @@ link_dotfiles() {
         "$HOME/.config/kitty" \
         "$HOME/.config/matplotlib/stylelib" \
         "$HOME/.config/mpv" \
+        "$HOME/.config/ripgrep" \
         "$HOME/.config/rofi" \
         "$HOME/.config/tmux" \
         "$HOME/.config/wofi"

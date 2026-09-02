@@ -1,0 +1,38 @@
+# ripgrep config file
+# One flag (and optional value) per line. Lines starting with # are comments.
+# See: rg --help / man rg
+
+# Use smart case: case-insensitive unless the pattern has an uppercase letter
+--smart-case
+
+# Search hidden files and directories (still respects .gitignore)
+--hidden
+
+# Always show line numbers
+--line-number
+
+# Skip common noise directories regardless of .gitignore
+--glob=!.git/*
+--glob=!node_modules/*
+
+# Don't let a single minified/generated line blow up the output
+--max-columns=200
+--max-columns-preview
+
+# Group matches under one heading per file with a blank line between files
+--heading
+
+# ── Theme: Catppuccin Mocha ─────────────────────────────────────────────────
+# Matches the Mocha flavor used by kitty/yazi/starship/nvim/visidata elsewhere
+# in this repo. kitty's catppuccin-mocha.conf remaps terminal ANSI colors
+# 0-15 to the Mocha palette (see ~/.config/kitty/current-theme.conf), so the
+# named ANSI colors below render as the exact Mocha hex values rather than
+# ripgrep's raw defaults.
+--colors=path:fg:magenta
+--colors=path:style:bold
+--colors=line:fg:green
+--colors=line:style:nobold
+--colors=column:fg:cyan
+--colors=column:style:nobold
+--colors=match:fg:yellow
+--colors=match:style:bold

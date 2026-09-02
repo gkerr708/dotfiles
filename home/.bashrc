@@ -47,6 +47,9 @@ if [[ $iatest -gt 0 ]]; then bind "set show-all-if-ambiguous On"; fi
 export EDITOR=nvim
 export VISUAL=nvim
 
+# ripgrep config
+export RIPGREP_CONFIG_PATH="$HOME/.config/ripgrep/config"
+
 
 #######################################################
 # COLOR AND VISUAL SETTINGS
