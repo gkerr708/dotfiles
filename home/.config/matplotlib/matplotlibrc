@@ -3,7 +3,8 @@
 ## Styled after standard physics-journal figures (APS/Physical Review house style):
 ## boxed axes, inward major+minor ticks on all four sides, serif + Computer-Modern
 ## mathtext, no grid, thin lines, framed legend, white background.
-## Series colors are the dataviz skill's validated colorblind-safe categorical set.
+## Series colors: dataviz skill's colorblind-safe categorical set, shared with
+## every style variant in stylelib/ so all styles read as one system.
 ## Opt-in variants: plt.style.use('dark') / plt.style.use('minimal')  (see stylelib/)
 
 ## ── Figure ──────────────────────────────────────────────────────────────
@@ -32,7 +33,7 @@ axes.spines.top      : True
 axes.spines.right    : True
 axes.grid           : False
 axes.formatter.use_mathtext : True
-axes.prop_cycle : cycler('color', ['2a78d6', 'eb6834', '1baf7a', 'eda100', 'e87ba4', '008300', '4a3aa7', 'e34948'])
+axes.prop_cycle : cycler('color', ['3987e5', 'd95926', 'eda100', '199e70', 'd55181', '9085e9', 'e66767', '008300'])
 
 ## ── Ticks ───────────────────────────────────────────────────────────────
 xtick.color          : 000000
@@ -55,7 +56,7 @@ xtick.minor.width    : 0.6
 ytick.minor.width    : 0.6
 
 ## ── Lines & markers ────────────────────────────────────────────────────
-lines.linewidth      : 1.2
+lines.linewidth      : 2.0
 lines.markersize     : 5
 lines.markeredgewidth: 0.8
 errorbar.capsize     : 3
