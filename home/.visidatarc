@@ -14,18 +14,22 @@ from visidata import vd, options
 #   2/10 = Green                 5/13 = Pink       15  = Subtext0
 # '' (unset) falls through to the terminal's true default fg/bg, i.e. exact
 # Mocha Text-on-Base, so the sheet blends with the rest of the terminal.
-# Cursor row/col/header intentionally avoid 'reverse': combining it with an
-# explicit bg from an overlapping rule (e.g. current_row + current_col at
-# their intersection) swaps fg/bg unpredictably and can land on a low-contrast
-# pair. Solid bg colors compose cleanly instead — attributes like bold always
-# OR together, so the crosshair cell just ends up bold-on-Surface2.
+# Cursor row/col intentionally avoid 'reverse' and bold/underline: VisiData
+# ORs attributes from every overlapping rule unconditionally (no way to
+# clear a bit once set), so any attribute on current_row or current_col
+# would still show up at their intersection no matter what current_cell
+# does. Keeping row/col as plain, attribute-free bg tints — and using
+# color_current_cell (precedence 3, beats both) to force the crosshair back
+# to color16 (Base, see kitty.conf) — is what lets the actual selected cell
+# render with zero highlighting, exactly like the regular background.
 vd.themes['catppuccin_mocha'] = dict(
     color_default          = '',
     color_default_hdr      = 'bold 5',
     color_bottom_hdr       = 'bold 5',  # the line actually shown for a normal 1-row header
-    color_current_row      = 'bold on 0',
-    color_current_col      = 'on 8',
-    color_current_hdr      = 'bold on 8',
+    color_current_row      = 'on 0',    # toned down: no bold, just a subtle Surface1 tint
+    color_current_col      = 'on 0',    # same tint as current_row, so row/col highlighting matches
+    color_current_cell     = 'on 16',   # the actual cursor cell: forced back to plain Base bg
+    color_current_hdr      = 'on 0',
     color_column_sep       = '8',
     color_key_col          = '6',
     color_edit_cell        = '4',
@@ -38,8 +42,15 @@ vd.themes['catppuccin_mocha'] = dict(
     color_menu             = '15 on 0',
     color_menu_active      = '0 on 4',
     color_menu_help        = '8 on 0',
-    color_active_status    = '0 on 4',
-    color_inactive_status  = '8 on 0',
+    # Status bar bg is dark (Surface1), like the rest of the theme, rather
+    # than the stock bright Blue: every accent color used in status spans
+    # (yellow selected-count, red errors, green working…) already has good
+    # contrast against Surface1 elsewhere in this theme, but several of them
+    # wash out against a bright Blue bg (e.g. yellow-on-blue, subtext-on-blue
+    # both land under 2:1 contrast). 'active' is now indicated with bold
+    # Blue text instead of a Blue fill.
+    color_active_status    = 'bold 4 on 0',
+    color_inactive_status  = '7 on 0',
     color_keystrokes       = 'bold 0 on 7',  # the small "which key you pressed" badge
     color_longname_status  = '7',            # the command name shown next to it
     color_working          = 'bold 2',
@@ -47,8 +58,14 @@ vd.themes['catppuccin_mocha'] = dict(
     color_change_pending   = 'reverse 3',
     color_delete_pending   = '1',
     color_readonly         = 'on 0',
-    color_code             = 'bold 15 on 0',
+    color_code             = 'bold 2',       # highlighted/backticked words (e.g. in guide sidebars)
     color_heading          = 'bold 0 on 3',
+    # Sidebar (the contextual guide/help box, e.g. the "Enter to open <table>"
+    # panel on an index sheet) defaults to an un-Catppuccin green fill —
+    # tone it down to the same subtle Surface1 used for current_row, so it
+    # reads as part of the theme instead of a garish highlight box.
+    color_sidebar          = 'on 0',
+    color_sidebar_title    = 'bold 5 on 0',
     plot_colors            = '1 2 3 4 5 6',
 )
 options.theme = 'catppuccin_mocha'   # View menu > Set theme (or Space > theme-input) to browse others
