@@ -263,10 +263,12 @@ return{
       require('lualine').setup {
         options = {
           icons_enabled = true,
-          --theme = 'iceberg_dark',
-          --theme = "catppuccin",
-          component_separators = { left = '', right = ''},
-          section_separators = { left = '', right = ''},
+          theme = (function()
+            local mono = { a = { fg = '#e0def4', bg = '#000000' }, b = { fg = '#e0def4', bg = '#000000' }, c = { fg = '#e0def4', bg = '#000000' } }
+            return { normal = mono, insert = mono, visual = mono, replace = mono, command = mono, inactive = mono }
+          end)(),
+          component_separators = '',
+          section_separators = '',
           disabled_filetypes = {
             statusline = {},
             winbar = {},
@@ -295,18 +297,18 @@ return{
           }
         },
         sections = {
-          lualine_a = {'mode'},
-          lualine_b = {'branch', 'diff', 'diagnostics'},
+          lualine_a = {},
+          lualine_b = {'branch', 'diagnostics'},
           lualine_c = {'filename'},
-          lualine_x = {'encoding', 'fileformat', 'filetype'},
-          lualine_y = {'progress'},
+          lualine_x = {},
+          lualine_y = {},
           lualine_z = {'location'}
         },
         inactive_sections = {
           lualine_a = {},
           lualine_b = {},
           lualine_c = {'filename'},
-          lualine_x = {'location'},
+          lualine_x = {},
           lualine_y = {},
           lualine_z = {}
         },
