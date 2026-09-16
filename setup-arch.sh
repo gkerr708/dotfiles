@@ -130,6 +130,7 @@ link_dotfiles() {
         "$HOME/.config/mpv" \
         "$HOME/.config/ripgrep" \
         "$HOME/.config/rofi" \
+        "$HOME/.config/spotify-player" \
         "$HOME/.config/tmux" \
         "$HOME/.config/wofi"
 
