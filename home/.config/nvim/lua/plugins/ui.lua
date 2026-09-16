@@ -195,20 +195,32 @@ return{
 
 
   {
-    "catppuccin/nvim",
-    name = "catppuccin",
+    "rose-pine/neovim",
+    name = "rose-pine",
     priority = 1000,
     config = function()
-      require("catppuccin").setup({
-        flavour = "mocha",   -- latte | frappe | macchiato | mocha
-        transparent_background = false,
-        integrations = {
-          lualine = true,
-          nvimtree = false,
-          telescope = true,
+      require("rose-pine").setup({
+        variant = "main",       -- main | moon | dawn
+        dark_variant = "main",
+        palette = {
+          main = {
+            base = "#000000",   -- black background instead of the stock #191724
+            surface = "#16141f",
+          },
+        },
+        styles = {
+          transparency = false,
+        },
+        -- Floats (LSP hover, yazi.nvim's window, etc.) otherwise use the
+        -- "surface" tone (#16141f) for their background/border, which reads
+        -- as a grayish/catppuccin-like panel against the pure-black Normal
+        -- bg above. Pin them to the same black so floats blend in.
+        highlight_groups = {
+          NormalFloat = { bg = "base" },
+          FloatBorder = { fg = "muted", bg = "base" },
         },
       })
-      vim.cmd.colorscheme("catppuccin")
+      vim.cmd.colorscheme("rose-pine")
     end,
   },
 

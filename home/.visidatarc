@@ -3,17 +3,17 @@
 
 from visidata import vd, options
 
-# ── Theme: Catppuccin Mocha ─────────────────────────────────────────────────
-# Matches the Mocha flavor used by kitty/yazi/starship/nvim elsewhere in this
-# repo. kitty's catppuccin-mocha.conf remaps terminal ANSI colors 0-15 to the
-# Mocha palette (see ~/.config/kitty/current-theme.conf), so referencing those
-# color numbers here — rather than the 256-color cube, which kitty leaves
-# unmapped — renders the exact Mocha hex values.
-#   0/8  = Surface1 / Surface2   3/11 = Yellow    6/14 = Teal
-#   1/9  = Red                   4/12 = Blue       7   = Subtext1
-#   2/10 = Green                 5/13 = Pink       15  = Subtext0
+# ── Theme: Rosé Pine (black background) ──────────────────────────────────────
+# Matches the Rosé Pine theme used by kitty/yazi/starship/nvim elsewhere in
+# this repo. kitty's current-theme.conf remaps terminal ANSI colors 0-15 to
+# the Rosé Pine palette (see ~/.config/kitty/current-theme.conf), so
+# referencing those color numbers here — rather than the 256-color cube,
+# which kitty leaves unmapped — renders the exact Rosé Pine hex values.
+#   0/8  = Overlay / Muted       3/11 = Gold      6/14 = Rose
+#   1/9  = Love (red)            4/12 = Foam       7   = Subtle
+#   2/10 = Pine (green)          5/13 = Iris       15  = Text
 # '' (unset) falls through to the terminal's true default fg/bg, i.e. exact
-# Mocha Text-on-Base, so the sheet blends with the rest of the terminal.
+# Rosé Pine Text-on-Base, so the sheet blends with the rest of the terminal.
 # Cursor row/col intentionally avoid 'reverse' and bold/underline: VisiData
 # ORs attributes from every overlapping rule unconditionally (no way to
 # clear a bit once set), so any attribute on current_row or current_col
@@ -22,7 +22,7 @@ from visidata import vd, options
 # color_current_cell (precedence 3, beats both) to force the crosshair back
 # to color16 (Base, see kitty.conf) — is what lets the actual selected cell
 # render with zero highlighting, exactly like the regular background.
-vd.themes['catppuccin_mocha'] = dict(
+vd.themes['rose_pine'] = dict(
     color_default          = '',
     color_default_hdr      = 'bold 5',
     color_bottom_hdr       = 'bold 5',  # the line actually shown for a normal 1-row header
@@ -42,13 +42,13 @@ vd.themes['catppuccin_mocha'] = dict(
     color_menu             = '15 on 0',
     color_menu_active      = '0 on 4',
     color_menu_help        = '8 on 0',
-    # Status bar bg is dark (Surface1), like the rest of the theme, rather
+    # Status bar bg is dark (Overlay), like the rest of the theme, rather
     # than the stock bright Blue: every accent color used in status spans
     # (yellow selected-count, red errors, green working…) already has good
-    # contrast against Surface1 elsewhere in this theme, but several of them
+    # contrast against Overlay elsewhere in this theme, but several of them
     # wash out against a bright Blue bg (e.g. yellow-on-blue, subtext-on-blue
     # both land under 2:1 contrast). 'active' is now indicated with bold
-    # Blue text instead of a Blue fill.
+    # Blue (Foam) text instead of a Blue fill.
     color_active_status    = 'bold 4 on 0',
     color_inactive_status  = '7 on 0',
     color_keystrokes       = 'bold 0 on 7',  # the small "which key you pressed" badge
@@ -61,14 +61,14 @@ vd.themes['catppuccin_mocha'] = dict(
     color_code             = 'bold 2',       # highlighted/backticked words (e.g. in guide sidebars)
     color_heading          = 'bold 0 on 3',
     # Sidebar (the contextual guide/help box, e.g. the "Enter to open <table>"
-    # panel on an index sheet) defaults to an un-Catppuccin green fill —
-    # tone it down to the same subtle Surface1 used for current_row, so it
-    # reads as part of the theme instead of a garish highlight box.
+    # panel on an index sheet) defaults to a jarring green fill — tone it
+    # down to the same subtle Overlay used for current_row, so it reads as
+    # part of the theme instead of a garish highlight box.
     color_sidebar          = 'on 0',
     color_sidebar_title    = 'bold 5 on 0',
     plot_colors            = '1 2 3 4 5 6',
 )
-options.theme = 'catppuccin_mocha'   # View menu > Set theme (or Space > theme-input) to browse others
+options.theme = 'rose_pine'   # View menu > Set theme (or Space > theme-input) to browse others
 
 # ── Safety ────────────────────────────────────────────────────────────────────
 options.quitguard = True        # confirm before quitting with unsaved changes

@@ -3,20 +3,21 @@ local M = {}
 -- ======================
 --  COLOR PALETTE
 -- ======================
+-- Rosé Pine palette (black background)
 local p = {
-    white     = "#ffffff",
-    black     = "#000000",
-    gray      = "#777777",
-    cyan      = "#00d7ff",
-    gold      = "#ffbf00",
-    red       = "#ff1e00",
-    yellow    = "#fff700",
-    mint      = "#00ff9c",
-    green     = "#00ff00",
-    aqua      = "#00eaff",
-    teal      = "#00ffcc",
-    pink      = "#ff5faf",
-    purple    = "#af00ff",
+    white     = "#e0def4", -- text
+    black     = "#000000", -- base
+    gray      = "#6e6a86", -- muted
+    cyan      = "#9ccfd8", -- foam
+    gold      = "#f6c177", -- gold
+    red       = "#eb6f92", -- love
+    yellow    = "#f6c177", -- gold
+    mint      = "#9ccfd8", -- foam
+    green     = "#31748f", -- pine
+    aqua      = "#9ccfd8", -- foam
+    teal      = "#31748f", -- pine
+    pink      = "#c4a7e7", -- iris
+    purple    = "#c4a7e7", -- iris
 }
 
 -- ======================

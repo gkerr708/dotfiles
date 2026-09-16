@@ -11,12 +11,13 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("/usr/lib/xdg-desktop-portal-hyprland")
     hl.exec_cmd("/usr/lib/xdg-desktop-portal")
 
-    -- Wallpapers — uncomment the block for your current setup
-    -- hl.exec_cmd("swww-daemon")
-    -- Thinkpad
-    -- hl.exec_cmd("swww img -o " .. V.internal_monitor .. " " .. V.wallpaper_internal .. " --transition-type " .. V.wallpaper_transition .. " --transition-duration " .. V.wallpaper_duration)
-    -- hl.exec_cmd("swww img -o " .. V.thinkpad_ext_monitor .. " " .. V.wallpaper_external .. " --transition-type " .. V.wallpaper_transition .. " --transition-duration " .. V.wallpaper_duration)
-    -- XPS-13
-    -- hl.exec_cmd("swww img -o " .. V.internal_monitor .. " " .. V.wallpaper_internal .. " --transition-type " .. V.wallpaper_transition .. " --transition-duration " .. V.wallpaper_duration)
-    -- hl.exec_cmd("swww img -o " .. V.xps_ext_monitor .. " " .. V.wallpaper_external .. " --transition-type " .. V.wallpaper_transition .. " --transition-duration " .. V.wallpaper_duration)
+    -- Wallpaper. hyprpaper preloads images from ~/.config/hypr/hyprpaper.conf
+    -- on its own, but actually assigning a wallpaper to a monitor has to go
+    -- through hyprctl's IPC once hyprpaper and the monitors are both up —
+    -- the config file's own "wallpaper = mon,path" lines aren't applied
+    -- automatically on this hyprpaper version.
+    local ext_monitor = V.on_thinkpad and V.thinkpad_ext_monitor or V.xps_ext_monitor
+    hl.exec_cmd("bash -c 'hyprpaper & sleep 1"
+        .. "; hyprctl hyprpaper wallpaper \"" .. V.internal_monitor .. "," .. V.wallpaper_internal .. "\""
+        .. "; hyprctl hyprpaper wallpaper \"" .. ext_monitor .. "," .. V.wallpaper_external .. "\"'")
 end)

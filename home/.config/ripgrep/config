@@ -22,12 +22,12 @@
 # Group matches under one heading per file with a blank line between files
 --heading
 
-# ── Theme: Catppuccin Mocha ─────────────────────────────────────────────────
-# Matches the Mocha flavor used by kitty/yazi/starship/nvim/visidata elsewhere
-# in this repo. kitty's catppuccin-mocha.conf remaps terminal ANSI colors
-# 0-15 to the Mocha palette (see ~/.config/kitty/current-theme.conf), so the
-# named ANSI colors below render as the exact Mocha hex values rather than
-# ripgrep's raw defaults.
+# ── Theme: Rosé Pine ─────────────────────────────────────────────────────────
+# Matches the Rosé Pine theme used by kitty/yazi/starship/nvim/visidata
+# elsewhere in this repo. kitty's current-theme.conf remaps terminal ANSI
+# colors 0-15 to the Rosé Pine palette (see ~/.config/kitty/current-theme.conf),
+# so the named ANSI colors below render as the exact Rosé Pine hex values
+# rather than ripgrep's raw defaults.
 --colors=path:fg:magenta
 --colors=path:style:bold
 --colors=line:fg:green

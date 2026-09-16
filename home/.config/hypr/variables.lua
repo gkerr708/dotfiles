@@ -17,11 +17,9 @@ M.fileManager = "kitty -e yazi"
 M.menu        = "wofi --show drun --style ~/.config/wofi/style.css"
 M.browser     = "firefox"
 
--- Wallpapers
-M.wallpaper_internal  = "/home/gkerr/images/arch1.jpg"
-M.wallpaper_external  = "/home/gkerr/images/arch5.jpg"
-M.wallpaper_transition = "any"
-M.wallpaper_duration   = 0.7
+-- Wallpapers (set via hyprpaper, see autostart.lua)
+M.wallpaper_internal  = "/home/gkerr/images/black.png"
+M.wallpaper_external  = "/home/gkerr/images/black.png"
 
 -- Look and feel
 M.gaps_in     = 1
@@ -29,11 +27,11 @@ M.gaps_out    = 1
 M.border_size = 1
 M.rounding    = 4
 
--- Colors
-M.color_active_1 = "rgba(33ccffee)"
-M.color_active_2 = "rgba(00ff99ee)"
-M.color_inactive = "rgba(595959aa)"
-M.color_shadow   = "rgba(1a1a1aee)"
+-- Colors (Rosé Pine, black background)
+M.color_active_1 = "rgba(9ccfd8ee)" -- foam
+M.color_active_2 = "rgba(c4a7e7ee)" -- iris
+M.color_inactive = "rgba(6e6a86aa)" -- muted
+M.color_shadow   = "rgba(000000ee)" -- base
 
 -- Cursor
 M.cursor_size = 24
