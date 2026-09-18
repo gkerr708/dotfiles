@@ -3,5 +3,25 @@ use = "yazi-rs/plugins:git"
 rev = "044c3cc"
 hash = "5bb0bfab901d3601c370eafdd66edd31"
 
+[[plugin.deps]]
+use = "AminurAlam/yazi-plugins:spot"
+rev = "9997d5b"
+hash = "5c045744914668f647e67bd4ea3fb9a2"
+
+[[plugin.deps]]
+use = "AminurAlam/yazi-plugins:spot-image"
+rev = "9997d5b"
+hash = "779bec9dc4f028ec148915cef1e4da44"
+
+[[plugin.deps]]
+use = "AminurAlam/yazi-plugins:spot-audio"
+rev = "9997d5b"
+hash = "4eb64572721410a8b05629de4c93dd38"
+
+[[plugin.deps]]
+use = "AminurAlam/yazi-plugins:spot-video"
+rev = "9997d5b"
+hash = "1e3ea3fe62450615ceca63910c9b629b"
+
 [flavor]
 deps = []
