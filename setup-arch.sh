@@ -1,4 +1,6 @@
 #!/bin/bash
+# Bootstrap a fresh Arch install: install packages, link dotfiles, enable services.
+# Safe to re-run — every step is idempotent.
 
 set -e
 
@@ -12,46 +14,107 @@ DOTFILES_DIR="$(dirname "$(realpath "$0")")"
 # ── Packages ──────────────────────────────────────────────────────────────────
 
 PACMAN_PKGS=(
-    stow
+    # Core / build
+    base-devel              # provides fakeroot, required for makepkg
+    debugedit               # required for makepkg debug package splitting
     git
+    stow
+    cmake                   # nvim <leader> C++ build mapping
+    unzip                   # Mason extracts LSP archives
+    7zip
+    unarchiver              # `unar`, yazi extract opener
+    strace                  # cpp() in .bashrc
+    net-tools               # `openports` alias (netstat)
+    bash-completion
+    wl-clipboard            # nvim system clipboard on Wayland
+
+    # Shell / CLI
     neovim
     bat
     ripgrep
+    fd                      # nvim sqlite picker, telescope
+    fzf                     # tmux-fzf
+    eza                     # ls aliases
+    zoxide
     starship
     git-delta
-    kitty
+    fastfetch
+    tree
+    btop
+    tmux
+    yazi
+    visidata                # `vd`, used by nvim + yazi
+    sqlite
+    jq
+    ffmpegthumbnailer       # yazi video previews
+    poppler                 # yazi PDF previews
+    imagemagick             # yazi image previews (+ wallpaper generation below)
+    resvg                   # yazi SVG previews
+    asciiquarium            # `fish` alias
+    speedtest-cli
+    chrony
+
+    # Languages / dev
+    nodejs                  # required for pyright, copilot, markdown-preview
+    npm
+    python
+    python-pip
+    uv
+    rustup
+    lua-language-server
+    luarocks                # lazy.nvim rocks support
+    tree-sitter-cli         # nvim-treesitter compiles parsers with this
+    r                       # R.nvim
+
+    # LaTeX (vimtex + latexmk + zathura)
+    texlive-basic
+    texlive-binextra        # latexmk
+    texlive-latexextra
+    texlive-fontsrecommended
+    biber
+
+    # Desktop (Hyprland)
     hyprland
     hyprlock
+    hyprpaper
+    hyprpolkitagent
+    xdg-desktop-portal-hyprland
+    xdg-desktop-portal-gtk
     waybar
     wofi
-
+    rofi
+    kitty
+    network-manager-applet  # nm-applet (autostart)
     brightnessctl
     playerctl
     pipewire
     wireplumber
+    pavucontrol             # waybar audio click
+    wiremix                 # SUPER+E
     bluez
     bluez-utils
-    tmux
-    rofi
+    blueman                 # waybar bluetooth click
+
+    # Apps
+    firefox
     mpv
     imv                     # image viewer
     zathura                 # PDF viewer
     zathura-pdf-poppler     # PDF rendering backend for zathura (zathura alone can't open PDFs without this)
-    btop
+    libreoffice-fresh       # .docx in mimeapps / yazi
+    ncspot
+    spotify-player
 
-    base-devel              # provides fakeroot, required for makepkg
-    debugedit               # required for makepkg debug package splitting
-    nodejs                  # required for pyright and other Mason-managed LSP servers
-    npm                     # required alongside nodejs for Mason installs (nvim-treesitter/Mason)
+    # Fonts
+    ttf-jetbrains-mono-nerd # JetBrainsMono Nerd Font (used by kitty)
+    noto-fonts
+    noto-fonts-emoji
 )
 
 AUR_PKGS=(
     autojump-git
-    tree-sitter-cli         # required by nvim-treesitter to compile parsers (newer versions shell out to the tree-sitter CLI binary instead of building parsers internally)
-)
-
-FONTS=(
-    ttf-jetbrains-mono-nerd # JetBrainsMono Nerd Font (used by kitty)
+    grimblast-git           # screenshots
+    nchat-git               # terminal WhatsApp/Telegram client
 )
 
 # ── AUR helper bootstrap ────────────────────────────────────────────────────────
@@ -66,60 +129,42 @@ ensure_yay() {
     local tmp_dir
     tmp_dir="$(mktemp -d)"
     git clone https://aur.archlinux.org/yay-bin.git "$tmp_dir/yay-bin"
-    (cd "$tmp_dir/yay-bin" && makepkg -si)
+    (cd "$tmp_dir/yay-bin" && makepkg -si --noconfirm)
     rm -rf "$tmp_dir"
 }
 
-check_packages() {
-    echo -e "${YELLOW}Package checklist:${RC}"
+install_packages() {
+    echo -e "${YELLOW}Installing pacman packages...${RC}"
+    sudo pacman -Syu --needed --noconfirm "${PACMAN_PKGS[@]}"
 
-    local all_good=true
+    ensure_yay
 
-    for pkg in "${PACMAN_PKGS[@]}" "${FONTS[@]}"; do
-        if pacman -Qi "$pkg" &>/dev/null || command -v "$pkg" &>/dev/null; then
-            echo -e "  ${GREEN}[✓]${RC} $pkg"
-        else
-            echo -e "  ${RED}[✗]${RC} $pkg  (install: sudo pacman -S $pkg)"
-            all_good=false
-        fi
-    done
-
-    for pkg in "${AUR_PKGS[@]}"; do
-        local cmd="${pkg%-bin}"; cmd="${cmd%-git}"
-        if pacman -Qi "$pkg" &>/dev/null || command -v "$cmd" &>/dev/null; then
-            echo -e "  ${GREEN}[✓]${RC} $pkg"
-        else
-            echo -e "  ${RED}[✗]${RC} $pkg  (install: yay -S $pkg)"
-            all_good=false
-        fi
-    done
-
-    if $all_good; then
-        echo -e "${GREEN}All packages present.${RC}"
-    else
-        echo -e "${YELLOW}Install missing packages before continuing if needed.${RC}"
-    fi
+    echo -e "${YELLOW}Installing AUR packages...${RC}"
+    yay -S --needed --noconfirm "${AUR_PKGS[@]}"
+    echo -e "${GREEN}Packages installed.${RC}"
     echo
 }
 
 # ── Symlinks via stow ─────────────────────────────────────────────────────────
 
+# Move any real file that would block stow to <file>.bak (ignored by git).
+backup_conflicts() {
+    local rel target
+    while IFS= read -r rel; do
+        rel="${rel#home/}"
+        target="$HOME/$rel"
+        if [[ -e "$target" && ! -L "$target" ]] && [[ -f "$target" ]]; then
+            echo -e "  ${YELLOW}[backup]${RC} ~/$rel -> ~/$rel.bak"
+            mv "$target" "$target.bak"
+        fi
+    done < <(cd "$DOTFILES_DIR" && find home -type f -o -type l)
+}
+
 link_dotfiles() {
     echo -e "${YELLOW}Linking dotfiles with stow...${RC}"
     cd "$DOTFILES_DIR"
 
-    # Check for conflicts before stowing
-    local conflicts
-    conflicts=$(stow --simulate home 2>&1 | grep "existing target is not" | sed 's/.*: //')
-
-    if [[ -n "$conflicts" ]]; then
-        echo -e "${RED}Conflicting files found (not symlinks):${RC}"
-        while IFS= read -r f; do
-            echo -e "  ${RED}[✗]${RC} ~/$f"
-        done <<< "$conflicts"
-        echo -e "${YELLOW}Remove or back up these files and re-run.${RC}"
-        exit 1
-    fi
+    backup_conflicts
 
     mkdir -p \
         "$HOME/.config/btop" \
@@ -134,14 +179,54 @@ link_dotfiles() {
         "$HOME/.config/tmux" \
         "$HOME/.config/wofi"
 
-    stow home
+    stow --restow home
     echo -e "${GREEN}Dotfiles linked.${RC}"
+    echo
+}
+
+# ── Post-install setup ────────────────────────────────────────────────────────
+
+setup_extras() {
+    echo -e "${YELLOW}Post-install setup...${RC}"
+
+    # tmux plugin manager (plugins/ is gitignored)
+    local tpm="$HOME/.config/tmux/plugins/tpm"
+    if [[ ! -d "$tpm" ]]; then
+        git clone https://github.com/tmux-plugins/tpm "$tpm"
+    fi
+    "$tpm/bin/install_plugins" || true
+
+    # Rust toolchain (rust_analyzer via Mason expects cargo)
+    if ! rustup toolchain list | grep -q stable; then
+        rustup default stable
+    fi
+
+    # npm global prefix from .npmrc
+    mkdir -p "$HOME/.npm-global"
+
+    # Wallpaper referenced in hypr/variables.lua
+    if [[ ! -f "$HOME/images/black.png" ]]; then
+        mkdir -p "$HOME/images"
+        magick -size 16x16 xc:black "$HOME/images/black.png"
+    fi
+
+    # Services
+    sudo systemctl enable --now NetworkManager
+    sudo systemctl enable --now bluetooth
+    sudo systemctl disable --now systemd-timesyncd 2>/dev/null || true  # conflicts with chrony
+    sudo systemctl enable --now chronyd
+
+    # Neovim plugins (lazy.nvim bootstraps itself; Mason installs LSPs on first open)
+    nvim --headless "+Lazy! sync" +qa || true
+
+    echo -e "${GREEN}Extras done.${RC}"
+    echo
 }
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
-ensure_yay
-check_packages
+install_packages
 link_dotfiles
+setup_extras
 
-echo -e "${GREEN}Done! Open a new shell to see your config.${RC}"
+echo -e "${GREEN}Done! Open a new shell (or log into Hyprland) to see your config.${RC}"

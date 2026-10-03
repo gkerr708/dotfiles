@@ -18,8 +18,8 @@ M.menu        = "wofi --show drun --style ~/.config/wofi/style.css"
 M.browser     = "firefox"
 
 -- Wallpapers (set via hyprpaper, see autostart.lua)
-M.wallpaper_internal  = "/home/gkerr/images/black.png"
-M.wallpaper_external  = "/home/gkerr/images/black.png"
+M.wallpaper_internal  = os.getenv("HOME") .. "/images/black.png"
+M.wallpaper_external  = os.getenv("HOME") .. "/images/black.png"
 
 -- Look and feel
 M.gaps_in     = 1
