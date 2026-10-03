@@ -16,8 +16,14 @@ hl.on("hyprland.start", function()
     -- through hyprctl's IPC once hyprpaper and the monitors are both up —
     -- the config file's own "wallpaper = mon,path" lines aren't applied
     -- automatically on this hyprpaper version.
-    local ext_monitor = V.on_thinkpad and V.thinkpad_ext_monitor or V.xps_ext_monitor
+    local first_monitor, ext_monitor
+    if V.on_desktop then
+        first_monitor, ext_monitor = V.desktop_left_monitor, V.desktop_right_monitor
+    else
+        first_monitor = V.internal_monitor
+        ext_monitor = V.on_thinkpad and V.thinkpad_ext_monitor or V.xps_ext_monitor
+    end
     hl.exec_cmd("bash -c 'hyprpaper & sleep 1"
-        .. "; hyprctl hyprpaper wallpaper \"" .. V.internal_monitor .. "," .. V.wallpaper_internal .. "\""
+        .. "; hyprctl hyprpaper wallpaper \"" .. first_monitor .. "," .. V.wallpaper_internal .. "\""
         .. "; hyprctl hyprpaper wallpaper \"" .. ext_monitor .. "," .. V.wallpaper_external .. "\"'")
 end)

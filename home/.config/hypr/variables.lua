@@ -7,6 +7,8 @@ M.internal_monitor     = "eDP-1"      -- built-in panel (both machines)
 M.thinkpad_ext_monitor  = "HDMI-A-2"  -- Thinkpad's external/dock monitor
 M.xps_ext_monitor       = "DP-1"      -- XPS's external monitor (work dock)
 -- M.xps_ext_monitor   = "DP-3"       -- XPS's external monitor (home dock)
+M.desktop_left_monitor  = "HDMI-A-1"  -- Desktop: Acer GF276, 1080p60 (left)
+M.desktop_right_monitor = "DP-1"      -- Desktop: ASUS VG248, 1080p144 (right)
 
 -- Scale
 M.internal_scale = 1.25
@@ -46,7 +48,7 @@ M.repeat_delay = 250
 M.mainMod = "SUPER"
 M.altMod  = "ALT"
 
--- Machine detection (Thinkpad = work, anything else = XPS/home)
+-- Machine detection (Thinkpad = work, gavin-desktop = desktop, anything else = XPS/home)
 local function is_thinkpad()
     local f = io.open("/sys/class/dmi/id/sys_vendor", "r")
     if not f then return false end
@@ -55,6 +57,15 @@ local function is_thinkpad()
     return vendor ~= nil and vendor:match("LENOVO") ~= nil
 end
 
+local function is_desktop()
+    local f = io.open("/etc/hostname", "r")
+    if not f then return false end
+    local host = f:read("*l")
+    f:close()
+    return host ~= nil and host:match("^gavin%-desktop") ~= nil
+end
+
 M.on_thinkpad = is_thinkpad()
+M.on_desktop  = is_desktop()
 
 return M
