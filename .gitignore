@@ -21,3 +21,7 @@ home/.config/tmux/plugins/
 
 # Generated preview images from matplotlib-demo/preview.py
 matplotlib-demo/*.png
+
+# nchat runtime state — sessions, message history, logs (only *.conf is tracked)
+home/.config/nchat/*
+!home/.config/nchat/*.conf
