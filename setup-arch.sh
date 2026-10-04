@@ -27,6 +27,8 @@ PACMAN_PKGS=(
     net-tools               # `openports` alias (netstat)
     bash-completion
     wl-clipboard            # nvim system clipboard on Wayland
+    mangohud                # game FPS/CPU/GPU overlay
+    lib32-mangohud          # needs multilib enabled
 
     # Shell / CLI
     neovim

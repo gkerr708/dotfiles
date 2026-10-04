@@ -94,6 +94,34 @@ sudo nmcli connection up "Dalhousie"
 * Monitor: `watch -n1 'cat /sys/bus/pci/devices/0000:2b:00.0/hwmon/hwmon*/{power1_average,temp1_input}'` (µW / m°C), or `btop`/`nvtop`
 * Test under load: run a GPU benchmark (`vkmark`, `glmark2`, or a game) while watching power; `power1_average` should stay ≤ ~197 W and the PC shouldn't shut off
 
+## CPU / GPU monitoring (waybar + shell)
+* Waybar right side shows `CPU: 50% 82°C`, `GPU: 15% 56°C 34W`, `VRAM: 1.0`, `RAM: 7.1`, `Vol: 82`, `BT: ...`; clicking CPU/GPU opens btop
+    * Scripts live in `home/bash_scripts/` (symlinked to `~/bash_scripts`): `cpu_stats.sh`, `gpu_stats.sh`, `vram_stats.sh` — each prints waybar JSON (text + tooltip + class)
+    * `cpu_stats.sh` samples `/proc/stat` over 0.5 s and reads the Ryzen `k10temp` Tctl; tooltip has avg clock + governor
+    * `gpu_stats.sh` reads amdgpu sysfs (busy %, junction temp, power vs cap, clock, fan, VRAM); `gpu_stats.sh -v` prints a readable summary incl. CPU
+    * Text turns red near the limit: CPU >= 92°C (Ryzen 3600 throttles ~95°C), GPU junction >= 105°C (critical 110°C)
+    * Sensor paths are hardcoded (CPU: `/sys/devices/pci0000:00/0000:00:18.3/hwmon`, GPU: `0000:2b:00.0`); hwmon numbers aren't stable across boots, so don't use them
+    * Idle inhibitor, clock icons removed; reload bar with `pkill -SIGUSR2 waybar`
+* Aliases (`.bashrc`): `gpu` (summary), `gpuwatch` (refresh every 1 s), `temps` (live `sensors` for CPU + GPU)
+* Tctl reads hotter than Tccd1 (die sensor) on Zen 2; ~88-94°C Tctl under moderate load suggests a cooler problem
+    * Check: dust in cooler/case fans, old paste (repaste: twist cooler before lifting, IPA to clean, pea-sized dot, tighten in an X)
+    * Quick test: `echo 0 | sudo tee /sys/devices/system/cpu/cpufreq/boost` disables boost until reboot (`1` to re-enable)
+    * Stress test: `stress-ng --cpu 12 --timeout 60s` while watching `temps`
+
+## Game FPS overlay (MangoHud)
+* Install: `sudo pacman -S mangohud lib32-mangohud`
+* Steam: game, Properties, Launch Options: `mangohud %command%` (if no overlay: `mangohud --dlsym %command%`)
+* Toggle in-game with Left Ctrl + Left Shift + M (`toggle_hud` in the config; default was Right Shift + F12); config is `home/.config/MangoHud/MangoHud.conf` (minimal: FPS + frametime graph; CPU/GPU stats are on waybar. Add `cpu_stats`, `gpu_stats`, `gpu_temp`, `vram`, `ram` etc. for more)
+* Steam's own counter (Settings, In Game) is the fallback; `stat fps` console in Unreal games isn't reliable in shipping builds
+
+## Local LLM (Ollama, RX 6800 16 GB)
+* Install: `sudo pacman -S ollama-rocm` (ROCm supports gfx1030; `ollama-vulkan` is the lighter alternative), then `sudo systemctl enable --now ollama`
+* `ollama run qwen3:14b` — ~9 GB, fits fully in VRAM; `/set nothink` turns off the reasoning preamble, `/bye` exits
+* Other models for 16 GB: `llama3.1:8b` (~5 GB, faster), `qwen2.5-coder:14b` (code); much over 14B spills into system RAM and gets slow
+* Verify GPU use: `ollama ps` should say `100% GPU`; `gpu` / VRAM module should jump to ~9-10 GB
+* Only 15 GB system RAM, and the GPU is power-capped to 197 W (see above) — watch CPU/GPU temps during long generations
+* Later: Open WebUI for a browser chat UI, `llama.cpp` for lower-level control
+
 ## Guitar rig (Focusrite Scarlett Solo)
 * `./setup-guitar.sh` — installs Carla, Ratatouille (NAM amp + cab IR), AIDA-X, Guitarix, qpwgraph; sets PipeWire buffer to 128 samples (`~/.config/pipewire/pipewire.conf.d/10-guitar-latency.conf`; use 256 if it crackles). Log out/in once for the `realtime` group.
 * Plug guitar into Solo input 1, press **INST**, keep gain just below red.
