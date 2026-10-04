@@ -20,7 +20,7 @@
   ],
   "modules-right": [
     //"tray",
-	"mpris",
+	//"mpris",
     "backlight",
     //"pulseaudio",
 	"wireplumber",

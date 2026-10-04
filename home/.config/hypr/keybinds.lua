@@ -79,8 +79,18 @@ hl.bind(mainMod .. " + SHIFT + 9", hl.dsp.window.move({ workspace = "9" }))
 hl.bind(mainMod .. " + SHIFT + 0", hl.dsp.window.move({ workspace = "10" }))
 
 -- Mouse
-hl.bind(altMod .. " + mouse:272", hl.dsp.window.drag(),   { mouse = true })
-hl.bind(altMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
+local mouse_binds = {
+    hl.bind(altMod .. " + mouse:272", hl.dsp.window.drag(),   { mouse = true }),
+    hl.bind(altMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true }),
+}
+
+-- Alt+click is a game input in Dota, so turn the drag/resize binds off while it is focused.
+hl.on("window.active", function(w)
+    local in_game = w ~= nil and w.class == "dota2"
+    for _, b in ipairs(mouse_binds) do
+        b:set_enabled(not in_game)
+    end
+end)
 
 -- Volume & brightness
 hl.bind("XF86AudioRaiseVolume",   hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })
