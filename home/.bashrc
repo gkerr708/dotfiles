@@ -98,6 +98,11 @@ fastfetch
 # ALIASES: SYSTEM AND UTILITIES
 #######################################################
 
+# CPU / GPU
+alias gpu="~/bash_scripts/gpu_stats.sh -v"
+alias gpuwatch="watch -n1 ~/bash_scripts/gpu_stats.sh -v"
+alias temps="watch -n1 sensors k10temp-pci-00c3 amdgpu-pci-2b00"
+
 # Fish
 alias fish='asciiquarium'
 

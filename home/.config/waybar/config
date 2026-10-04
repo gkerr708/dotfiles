@@ -26,11 +26,11 @@
 	"wireplumber",
     "network",
     "bluetooth",
-    "temperature",
-    "cpu",
+    "custom/cpu",
+    "custom/gpu",
+    "custom/vram",
     "memory",
-    "battery",
-    "idle_inhibitor"
+    "battery"
   ],
 
   // --- Left ---
@@ -59,8 +59,8 @@
   "hyprland/window": { "max-length": 35, "separate-outputs": true, "rewrite": { ".* - Mozilla Firefox": "Firefox" } },
 
   // --- Center ---
-  "clock#date": { "format": "  {:%a %b %d}", "tooltip-format": "{:%Y-%m-%d}" },
-  "clock#time": { "format": "  {:%I:%M %p}", "interval": 1, "tooltip-format": "{:%Z}" }, 
+  "clock#date": { "format": "{:%a %b %d}", "tooltip-format": "{:%Y-%m-%d}" },
+  "clock#time": { "format": "{:%I:%M %p}", "interval": 1, "tooltip-format": "{:%Z}" }, 
 
 
   // --- Right ---
@@ -94,9 +94,8 @@
   },
 
   "wireplumber": {
-    "format": "{volume}% {icon}",
-    "format-muted": "MUTE ",
-    "format-icons": ["", "", ""],
+    "format": "Vol: {volume}",
+    "format-muted": "Vol: MUTE",
     "on-click": "pwvucontrol",
     "scroll-step": 2
   },
@@ -110,27 +109,38 @@
   },
 
   "bluetooth": {
-    "format": " {status}",
-    "format-connected": " {num_connections}",
+    "format": "BT: {status}",
+    "format-connected": "BT: {num_connections}",
     "tooltip-format": "{controller_alias}\n{device_enumerate}",
 	"on-click": "blueman-manager || kitty -e bluetoothctl"
   },
 
-  "temperature": {
-    "critical-threshold": 80,
-    "format": "{temperatureC}°C ",
-    "tooltip": true
+  "custom/cpu": {
+    "exec": "~/bash_scripts/cpu_stats.sh",
+    "return-type": "json",
+    "interval": 2,
+    "format": "{}",
+    "on-click": "kitty -e btop"
   },
 
-  "cpu": {
+  "custom/gpu": {
+    "exec": "~/bash_scripts/gpu_stats.sh",
+    "return-type": "json",
     "interval": 2,
-    "format": "{usage}% ",
-    "tooltip": true
+    "format": "{}",
+    "on-click": "kitty -e btop"
+  },
+
+  "custom/vram": {
+    "exec": "~/bash_scripts/vram_stats.sh",
+    "return-type": "json",
+    "interval": 2,
+    "format": "{}"
   },
 
   "memory": {
     "interval": 5,
-    "format": "{used:0.1f}G",
+    "format": "RAM: {used:0.1f}",
     "tooltip": true
   },
 
@@ -139,11 +149,5 @@
     "format": "{capacity}% {icon}",
     "format-icons": ["","","","",""],
     "tooltip": true
-  },
-
-  "idle_inhibitor": {
-    "format": "{icon}",
-    "format-icons": { "activated": "󰅶", "deactivated": "󰾪" },
-    "tooltip": "Toggle idle inhibitor"
   }
 }
