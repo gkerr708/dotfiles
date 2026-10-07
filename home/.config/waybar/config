@@ -79,7 +79,7 @@
   },
 
   "backlight": {
-    "format": "{percent}% ",
+    "format": "Bri: {percent}%",
     "on-scroll-up": "brightnessctl set 5%+",
     "on-scroll-down": "brightnessctl set 5%-",
     "tooltip": true
@@ -94,14 +94,14 @@
   },
 
   "wireplumber": {
-    "format": "Vol: {volume}",
+    "format": "Vol: {volume}%",
     "format-muted": "Vol: MUTE",
     "on-click": "pwvucontrol",
     "scroll-step": 2
   },
 
   "network": {
-    "format-wifi": "{essid}  {signalStrength}%",
+    "format-wifi": "{essid} {signalStrength}%",
     "format-ethernet": "{ipaddr}",
     "format-disconnected": "󰤮",
     "tooltip": true,
@@ -140,13 +140,13 @@
 
   "memory": {
     "interval": 5,
-    "format": "RAM: {used:0.1f}",
+    "format": "RAM: {used:0.1f}G",
     "tooltip": true
   },
 
   "battery": {
     "states": { "good": 80, "warning": 30, "critical": 15 },
-    "format": "{capacity}% {icon}",
+    "format": "Bat: {capacity}%",
     "format-icons": ["","","","",""],
     "tooltip": true
   }

@@ -9,5 +9,5 @@ usage=$(( total > 0 ? 100 * (total - idle) / total : 0 ))
 temp=$(( $(cat /sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon*/temp1_input) / 1000 ))
 mhz=$(grep MHz /proc/cpuinfo | awk '{s+=$4} END {printf "%d", s/NR}')
 class=""; [ "$temp" -ge 92 ] && class="critical"
-printf '{"text":"CPU: %s%% %s°C","tooltip":"CPU %s%%\\nTctl %s°C\\nAvg clock %s MHz\\nGovernor %s","class":"%s"}\n' \
+printf '{"text":"CPU: %s%% %sC","tooltip":"CPU %s%%\\nTctl %s°C\\nAvg clock %s MHz\\nGovernor %s","class":"%s"}\n' \
   "$usage" "$temp" "$usage" "$temp" "$mhz" "$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)" "$class"

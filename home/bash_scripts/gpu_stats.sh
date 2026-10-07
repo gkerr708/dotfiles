@@ -19,6 +19,6 @@ if [ "$1" = "-v" ]; then
 fi
 
 class=""; [ "$temp" -ge 105 ] && class="critical"
-printf '{"text":"GPU: %s%% %s°C %sW","tooltip":"GPU %s%%\\nJunction %s°C\\nPower %s/%s W\\nClock %s MHz\\nFan %s RPM\\nVRAM %s/%s MiB","class":"%s"}\n' \
+printf '{"text":"GPU: %s%% %sC %sW","tooltip":"GPU %s%%\\nJunction %s°C\\nPower %s/%s W\\nClock %s MHz\\nFan %s RPM\\nVRAM %s/%s MiB","class":"%s"}\n' \
   "$busy" "$temp" "$watts" "$busy" "$temp" "$watts" "$cap" "$sclk" "$fan" \
   "$(( vram_used / 1048576 ))" "$(( vram_total / 1048576 ))" "$class"
