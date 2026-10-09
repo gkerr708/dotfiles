@@ -60,6 +60,7 @@ Start scripts with `#!/bin/bash` and `set -euo pipefail`. Leave out `-e` where a
 | `check-git-repos [--pull\|--push\|--sync]` | Status of every repo under `~/lab` |
 | `maturin-uv <name>` | New Rust/Python (maturin + uv) project |
 | `tmux-help` | tmux cheatsheet |
+| `arch-help` | Arch cheatsheet ([docs/arch-cheatsheet.md](docs/arch-cheatsheet.md)) |
 | `battery-info` | upower details for both laptop batteries |
 | `corne-flash` | Build + flash the Corne keyboard ([docs/hardware.md](docs/hardware.md#corne-keyboard-qmk)) |
 | `format-usb` | Wipe the Arch installer USB as exFAT |

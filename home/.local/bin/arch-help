@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Print the Arch cheatsheet (docs/arch-cheatsheet.md in the dotfiles repo).
+set -euo pipefail
+
+# This script is stowed into ~/.local/bin, so follow the symlink back to the repo
+repo=$(dirname "$(readlink -f "$0")")/../../..
+sheet=$(readlink -f "$repo/docs/arch-cheatsheet.md")
+
+if command -v bat >/dev/null; then
+    bat --style=plain --paging=never --language=markdown "$sheet"
+else
+    cat "$sheet"
+fi

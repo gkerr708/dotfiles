@@ -1,44 +1,46 @@
 #!/usr/bin/env bash
+# tmux cheatsheet matching ~/.config/tmux/tmux.conf (prefix is Alt-l).
 set -euo pipefail
 
 cat << 'EOF'
 ===============================
-         Tmux Help
+   Tmux Help   (prefix: Alt-l)
 ===============================
 
-Start a new session:
-    tmux new -s <name>
-
-Attach to a session:
-    tmux attach -t <name>
-
-List sessions:
-    tmux ls
-
-Kill a session:
+Sessions:
+    tmux new -s <name>          # start
+    tmux attach -t <name>       # attach
+    tmux ls                     # list
     tmux kill-session -t <name>
+    tmux kill-server            # kill everything
+    Alt-l N                     # new session (prompts for name)
+    Alt-l s                     # pick session
+    Alt-l d                     # detach
 
-Detach from a session (inside tmux):
-    Ctrl-Space d
+Windows:
+    Alt-l c                     # new window (same dir)
+    Alt-Left / Alt-Right        # previous / next window (no prefix)
+    Alt-l 0..9                  # jump to window
+    Alt-l w                     # pick window
+    Alt-l t                     # fuzzy-find window (tmux-fzf)
 
-Split panes:
-    Ctrl-Space %   # vertical split
-    Ctrl-Space "   # horizontal split
+Panes:
+    Alt-l %                     # split side by side
+    Alt-l "                     # split top / bottom
+    Alt-l h/j/k/l               # move left/down/up/right (repeatable)
+    Alt-l H/J/K/L               # resize by 5 (repeatable)
+    Alt-l R                     # restart pane
+    Alt-l x                     # kill pane
 
-Navigate panes:
-    Ctrl-Space <arrow key>
+Copy mode (vi keys):
+    Alt-l n                     # enter copy mode
+    v                           # start selection
+    y                           # copy to clipboard (wl-copy) and exit
+    i                           # exit
 
-Resize panes:
-    Ctrl-Space :resize-pane -D / -U / -L / -R
-
-Create / switch windows:
-    Ctrl-Space c   # new window
-    Ctrl-Space n   # next window
-    Ctrl-Space p   # previous window
-    Ctrl-Space w   # list windows
-
-Kill tmux server (all sessions):
-    tmux kill-server
+Misc:
+    Alt-l r                     # reload tmux.conf
+    Alt-l Alt-l                 # send Alt-l to the program
 
 ===============================
 EOF

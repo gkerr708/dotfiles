@@ -5,6 +5,7 @@
 * `udisksctl mount -b /dev/sda1`
 * `udisksctl unmount -b /dev/sda1`
 * `udisksctl power-off -b /dev/sda`
+* `format-usb` — wipe the old Arch installer USB (`/dev/sdb`) and reformat it as exFAT
 
 ## Date and Time
 * `timedatectl status` 
@@ -74,6 +75,8 @@ sudo nmcli connection up "Dalhousie"
 * `hyprctl monitors` — list monitors
 * `hyprctl clients` — list open windows
 * `hyprctl reload` — reload config
+* **SUPER + /** — searchable list of all keybinds
+* **SUPER + SHIFT + M** — animations on/off (resets on `hyprctl reload`)
 
 ## Screenshot
 * `grimblast save area path/to/image.png`
