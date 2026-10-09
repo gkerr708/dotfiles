@@ -329,6 +329,7 @@ case "$PROMPT_COMMAND" in
     *) PROMPT_COMMAND="_zoxide_hook${PROMPT_COMMAND:+;${PROMPT_COMMAND}}" ;;
 esac
 alias lookingglass="~/looking-glass-B5.0.1/client/build/looking-glass-client -F"
+alias weather='curl wttr.in/Halifax,Nova+Scotia'
 
 if [ -f "/usr/share/autojump/autojump.sh" ]; then
 	. /usr/share/autojump/autojump.sh

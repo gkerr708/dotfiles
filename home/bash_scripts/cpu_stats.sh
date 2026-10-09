@@ -6,8 +6,11 @@ read -r _ u2 n2 s2 i2 w2 q2 sq2 _ < /proc/stat
 idle=$(( (i2 + w2) - (i1 + w1) ))
 total=$(( (u2+n2+s2+i2+w2+q2+sq2) - (u1+n1+s1+i1+w1+q1+sq1) ))
 usage=$(( total > 0 ? 100 * (total - idle) / total : 0 ))
-temp=$(( $(cat /sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon*/temp1_input) / 1000 ))
+temp=0
+for h in /sys/class/hwmon/hwmon*; do
+  case $(cat "$h/name") in k10temp|coretemp|zenpower) temp=$(( $(cat "$h/temp1_input") / 1000 )); break ;; esac
+done
 mhz=$(grep MHz /proc/cpuinfo | awk '{s+=$4} END {printf "%d", s/NR}')
 class=""; [ "$temp" -ge 92 ] && class="critical"
-printf '{"text":"CPU: %s%% %sC","tooltip":"CPU %s%%\\nTctl %s°C\\nAvg clock %s MHz\\nGovernor %s","class":"%s"}\n' \
+printf '{"text":"CPU: %3s%% %3sC","tooltip":"CPU %s%%\\nTemp %s°C\\nAvg clock %s MHz\\nGovernor %s","class":"%s"}\n' \
   "$usage" "$temp" "$usage" "$temp" "$mhz" "$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)" "$class"

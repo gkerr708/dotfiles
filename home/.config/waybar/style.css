@@ -27,14 +27,11 @@ window#waybar {
   box-shadow: 0 0 0 1px rgba(255,255,255,0.25) inset;
 }
 
-#mpris {
-  padding: 0 6px;
-  color: #ffffff;
-}
+#mpris { color: #ffffff; }
 
 #custom-logo { padding: 0 8px; color: #ffffff; font-size: 12px; }
-#clock, #pulseaudio, #network, #bluetooth, #custom-cpu, #custom-gpu, #custom-vram, #memory, #battery,
-#tray, #idle_inhibitor, #custom-player, #submap, #window, #backlight, #wireplumber {
+#clock, #pulseaudio, #network, #bluetooth, #custom-cpu, #custom-gpu, #custom-vram, #custom-weather, #custom-power, #memory, #battery,
+#tray, #mpris, #idle_inhibitor, #custom-player, #submap, #window, #backlight, #wireplumber {
   padding: 0 5px; margin: 2px 1px; border-radius: 8px;
   background: rgba(0,0,0,0.0);
   border: 1px solid rgba(255,255,255,0.25);
@@ -53,6 +50,9 @@ window#waybar {
 #custom-gpu { color: #ffffff; }
 #custom-gpu.critical { color: #ff5555; }
 #memory { color: #ffffff; }
+#custom-weather { color: #ffffff; }
+#custom-power { color: #ffffff; }
+#custom-power.power-saver { color: #a6e3a1; }
 #battery { color: #ffffff; }
 #battery.good { color: #ffffff; }
 #battery.warning { color: #ffffff; }

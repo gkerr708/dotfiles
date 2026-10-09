@@ -1,6 +1,11 @@
 #!/bin/bash
 # GPU stats for the RX 6800 via sysfs. Default: waybar JSON. Use -v for a readable summary.
-D=/sys/bus/pci/devices/0000:2b:00.0
+D=""; best=0
+for d in /sys/class/drm/card*/device; do
+  [ -r "$d/gpu_busy_percent" ] || continue
+  t=$(cat "$d/mem_info_vram_total"); [ "$t" -gt "$best" ] && best=$t && D=$d
+done
+[ -z "$D" ] && exit 0
 H=$(echo $D/hwmon/hwmon*)
 busy=$(cat $D/gpu_busy_percent)
 temp=$(( $(cat $H/temp2_input) / 1000 ))   # junction
@@ -19,6 +24,6 @@ if [ "$1" = "-v" ]; then
 fi
 
 class=""; [ "$temp" -ge 105 ] && class="critical"
-printf '{"text":"GPU: %s%% %sC %sW","tooltip":"GPU %s%%\\nJunction %s°C\\nPower %s/%s W\\nClock %s MHz\\nFan %s RPM\\nVRAM %s/%s MiB","class":"%s"}\n' \
+printf '{"text":"GPU: %3s%% %3sC %3sW","tooltip":"GPU %s%%\\nJunction %s°C\\nPower %s/%s W\\nClock %s MHz\\nFan %s RPM\\nVRAM %s/%s MiB","class":"%s"}\n' \
   "$busy" "$temp" "$watts" "$busy" "$temp" "$watts" "$cap" "$sclk" "$fan" \
   "$(( vram_used / 1048576 ))" "$(( vram_total / 1048576 ))" "$class"

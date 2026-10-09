@@ -11,17 +11,18 @@
   "modules-left": [
     //"custom/logo",
     "hyprland/workspaces",
-    "hyprland/submap",
-    "hyprland/window"
+    "hyprland/submap"
+    //"hyprland/window"
   ],
   "modules-center": [
     "clock#date",
-    "clock#time"
+    "clock#time",
+    "custom/weather"
   ],
   "modules-right": [
     //"tray",
 	//"mpris",
-    "backlight",
+    //"backlight",
     //"pulseaudio",
 	"wireplumber",
     "network",
@@ -30,6 +31,7 @@
     "custom/gpu",
     "custom/vram",
     "memory",
+    "custom/power",
     "battery"
   ],
 
@@ -74,12 +76,16 @@
       "firefox": "",
       "mpv": ""
     },
+    "format-paused": "{status_icon} {title} - {artist}",
+    "status-icons": { "paused": "" },
+    "tooltip-format": "{player}: {title}\n{artist} - {album}",
     "ignored-players": ["chromium"],
-    "max-length": 24
+    "min-length": 28,                        // fixed width so track changes don't shift the bar
+    "max-length": 28
   },
 
   "backlight": {
-    "format": "Bri: {percent}%",
+    "format": "Bri: {percent:>3}",
     "on-scroll-up": "brightnessctl set 5%+",
     "on-scroll-down": "brightnessctl set 5%-",
     "tooltip": true
@@ -94,14 +100,15 @@
   },
 
   "wireplumber": {
-    "format": "Vol: {volume}%",
-    "format-muted": "Vol: MUTE",
+    "format": "Vol: {volume:>3}",
+    "format-muted": "Vol: ---",
     "on-click": "pwvucontrol",
     "scroll-step": 2
   },
 
   "network": {
-    "format-wifi": "{essid} {signalStrength}%",
+    "format-wifi": "Wifi: {signalStrength:>3}",
+    "tooltip-format-wifi": "{essid} ({signalStrength}%)\n{ipaddr}",
     "format-ethernet": "{ipaddr}",
     "format-disconnected": "󰤮",
     "tooltip": true,
@@ -138,15 +145,30 @@
     "format": "{}"
   },
 
+  "custom/weather": {
+    "exec": "~/bash_scripts/weather.sh",
+    "return-type": "json",
+    "interval": 900,
+    "on-click": "kitty --hold -e curl wttr.in/Halifax,Nova+Scotia"
+  },
+
+  "custom/power": {
+    "exec": "~/bash_scripts/power_profile.sh",
+    "return-type": "json",
+    "interval": 5,
+    "signal": 8,
+    "on-click": "~/bash_scripts/power_profile.sh next; pkill -RTMIN+8 waybar"
+  },
+
   "memory": {
     "interval": 5,
-    "format": "RAM: {used:0.1f}G",
+    "format": "RAM: {used:>4.1f}G",
     "tooltip": true
   },
 
   "battery": {
     "states": { "good": 80, "warning": 30, "critical": 15 },
-    "format": "Bat: {capacity}%",
+    "format": "Bat: {capacity:>3}",
     "format-icons": ["","","","",""],
     "tooltip": true
   }
