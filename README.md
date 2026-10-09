@@ -123,11 +123,11 @@ sudo nmcli connection up "Dalhousie"
 * Later: Open WebUI for a browser chat UI, `llama.cpp` for lower-level control
 
 ## Guitar rig (Focusrite Scarlett Solo)
-* `./setup-guitar.sh` — installs Carla, Ratatouille (NAM amp + cab IR), AIDA-X, Guitarix, qpwgraph; sets PipeWire buffer to 128 samples (`~/.config/pipewire/pipewire.conf.d/10-guitar-latency.conf`; use 256 if it crackles). Log out/in once for the `realtime` group.
+* `./setup-guitar.sh` — installs Carla, Ratatouille (NAM amp + cab IR), AIDA-X, Guitarix, qpwgraph; enables `guitar-latency.service`, which forces a 128-sample PipeWire buffer only while Carla/TONE3000/Guitarix is open and restores the normal buffer after (change `GUITAR_QUANTUM` in `home/.local/bin/guitar-latency`; use 256 if it crackles). Log out/in once for the `realtime` group.
 * Plug guitar into Solo input 1, press **INST**, keep gain just below red.
 * `carla` — plugin host. Add Ratatouille, load a `.nam` model (e.g. from ToneHunt) and a cabinet IR.
 * `qpwgraph` — visual routing if the guitar isn't reaching Carla/output.
-* Latency check: `pw-metadata -n settings 0 clock.quantum`
+* Latency check: `pw-metadata -n settings 0 clock.force-quantum` (128 with a guitar app open, 0 otherwise); logs: `journalctl --user -u guitar-latency`
 * Alternatives: Guitarix (classic DSP amps, no downloads needed), Reaper/Ardour if you want to record.
 
 ## Corne keyboard (QMK)

@@ -1,0 +1,11 @@
+[Unit]
+Description=Low PipeWire buffer while a guitar app (Carla/TONE3000/Guitarix) is open
+After=pipewire.service
+BindsTo=pipewire.service
+
+[Service]
+ExecStart=%h/.local/bin/guitar-latency
+Restart=on-failure
+
+[Install]
+WantedBy=pipewire.service

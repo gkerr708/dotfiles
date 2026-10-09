@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Low PipeWire buffer only while a guitar app is open; normal buffer otherwise,
+# so Discord/Dota aren't stuck on the tiny quantum.
+GUITAR_QUANTUM=${GUITAR_QUANTUM:-128}   # 128 @ 48 kHz ≈ 2.7 ms. Raise to 256 if it crackles.
+GUITAR_APPS='(^|/)(TONE3000|carla|guitarix)( |$)'
+
+while :; do
+    if pgrep -if "$GUITAR_APPS" >/dev/null; then want=$GUITAR_QUANTUM; else want=0; fi
+    have=$(pw-metadata -n settings 0 clock.force-quantum 2>/dev/null | grep -oP "value:'\K[0-9]+")
+    if [[ -n $have && $have != "$want" ]]; then
+        pw-metadata -n settings 0 clock.force-quantum "$want" >/dev/null
+        echo "clock.force-quantum $have -> $want"
+    fi
+    sleep 2
+done

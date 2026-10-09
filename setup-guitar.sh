@@ -10,8 +10,6 @@ if [ "$EUID" -eq 0 ]; then
   exit 1
 fi
 
-QUANTUM=128   # samples @ 48 kHz: 128 ≈ 2.7 ms. If audio crackles, raise to 256.
-
 echo "[1/4] Installing repo packages"
 sudo pacman -S --needed --noconfirm \
   carla guitarix aida-x-lv2 lsp-plugins-lv2 qpwgraph pipewire-jack realtime-privileges
@@ -27,16 +25,15 @@ else
   echo "  added to 'realtime' group (log out and back in to apply)"
 fi
 
-echo "[4/4] PipeWire low-latency buffer ($QUANTUM samples)"
-mkdir -p ~/.config/pipewire/pipewire.conf.d
-cat > ~/.config/pipewire/pipewire.conf.d/10-guitar-latency.conf <<EOF
-context.properties = {
-    default.clock.rate        = 48000
-    default.clock.quantum     = $QUANTUM
-    default.clock.min-quantum = 64
-}
-EOF
-systemctl --user restart pipewire pipewire-pulse wireplumber
+echo "[4/4] PipeWire low-latency buffer while a guitar app is open (guitar-latency.service)"
+# Old global low-latency default made Discord/Dota crackle; drop it if present.
+rm -f ~/.config/pipewire/pipewire.conf.d/10-guitar-latency.conf
+DOTFILES=$(cd "$(dirname "$0")" && pwd)
+mkdir -p ~/.local/bin ~/.config/systemd/user
+ln -sf "$DOTFILES/home/.local/bin/guitar-latency" ~/.local/bin/guitar-latency
+ln -sf "$DOTFILES/home/.config/systemd/user/guitar-latency.service" ~/.config/systemd/user/guitar-latency.service
+systemctl --user daemon-reload
+systemctl --user enable --now guitar-latency.service
 
 echo
 echo "Done. Current buffer:"
