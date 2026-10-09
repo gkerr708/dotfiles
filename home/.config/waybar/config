@@ -123,7 +123,7 @@
   },
 
   "custom/cpu": {
-    "exec": "~/bash_scripts/cpu_stats.sh",
+    "exec": "~/.config/waybar/scripts/cpu_stats.sh",
     "return-type": "json",
     "interval": 2,
     "format": "{}",
@@ -131,7 +131,7 @@
   },
 
   "custom/gpu": {
-    "exec": "~/bash_scripts/gpu_stats.sh",
+    "exec": "~/.config/waybar/scripts/gpu_stats.sh",
     "return-type": "json",
     "interval": 2,
     "format": "{}",
@@ -139,25 +139,25 @@
   },
 
   "custom/vram": {
-    "exec": "~/bash_scripts/vram_stats.sh",
+    "exec": "~/.config/waybar/scripts/vram_stats.sh",
     "return-type": "json",
     "interval": 2,
     "format": "{}"
   },
 
   "custom/weather": {
-    "exec": "~/bash_scripts/weather.sh",
+    "exec": "~/.config/waybar/scripts/weather.sh",
     "return-type": "json",
     "interval": 900,
     "on-click": "kitty --hold -e curl wttr.in/Halifax,Nova+Scotia"
   },
 
   "custom/power": {
-    "exec": "~/bash_scripts/power_profile.sh",
+    "exec": "~/.config/waybar/scripts/power_profile.sh",
     "return-type": "json",
     "interval": 5,
     "signal": 8,
-    "on-click": "~/bash_scripts/power_profile.sh next; pkill -RTMIN+8 waybar"
+    "on-click": "~/.config/waybar/scripts/power_profile.sh next; pkill -RTMIN+8 waybar"
   },
 
   "memory": {

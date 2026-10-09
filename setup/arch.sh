@@ -2,14 +2,14 @@
 # Bootstrap a fresh Arch install: install packages, link dotfiles, enable services.
 # Safe to re-run — every step is idempotent.
 
-set -e
+set -euo pipefail
 
 RC='\e[0m'
 RED='\e[31m'
 YELLOW='\e[33m'
 GREEN='\e[32m'
 
-DOTFILES_DIR="$(dirname "$(realpath "$0")")"
+DOTFILES_DIR="$(dirname "$(dirname "$(realpath "$0")")")"
 
 # ── Packages ──────────────────────────────────────────────────────────────────
 
@@ -48,6 +48,7 @@ PACMAN_PKGS=(
     visidata                # `vd`, used by nvim + yazi
     sqlite
     jq
+    shellcheck              # lint scripts in setup/, ~/.local/bin, waybar/scripts
     ffmpegthumbnailer       # yazi video previews
     poppler                 # yazi PDF previews
     imagemagick             # yazi image previews (+ wallpaper generation below)
@@ -168,7 +169,11 @@ link_dotfiles() {
 
     backup_conflicts
 
+    # Real dirs so stow links files inside them instead of folding the whole dir
+    # into the repo (other tools write to ~/.local/bin and ~/.config/systemd/user).
     mkdir -p \
+        "$HOME/.local/bin" \
+        "$HOME/.config/systemd/user" \
         "$HOME/.config/btop" \
         "$HOME/.config/git" \
         "$HOME/.config/hypr" \

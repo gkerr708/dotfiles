@@ -22,6 +22,11 @@ vim.o.termguicolors = true
 vim.o.scrolloff = 8
 vim.o.spelllang = 'en_us'
 vim.o.spell = true
+-- spell/*.spl is generated (gitignored); rebuild it from the tracked .add word list when stale
+local spell_add = vim.fn.stdpath('config') .. '/spell/en.utf-8.add'
+if vim.fn.filereadable(spell_add) == 1 and vim.fn.getftime(spell_add) > vim.fn.getftime(spell_add .. '.spl') then
+  vim.cmd('silent mkspell! ' .. vim.fn.fnameescape(spell_add))
+end
 vim.g.netrw_liststyle = 0
 vim.o.hlsearch = true
 vim.o.incsearch = true

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Laptop power profiles: performance while plugged in, balanced on battery.
 # Installs power-profiles-daemon and a udev rule that switches profile on AC plug/unplug.
-# Run with: sudo ./setup-power-profiles.sh
+# Run with: sudo ./setup/power-profiles.sh
 set -euo pipefail
 
 if [ "$EUID" -ne 0 ]; then

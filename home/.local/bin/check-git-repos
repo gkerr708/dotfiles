@@ -1,4 +1,5 @@
 #!/bin/bash
+set -uo pipefail
 
 # Directories to search
 dirs=("$HOME/lab" "$HOME/lab/docs")

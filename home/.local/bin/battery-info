@@ -1,0 +1,6 @@
+#!/bin/bash
+# Show upower details for both laptop batteries.
+set -euo pipefail
+
+upower -i /org/freedesktop/UPower/devices/battery_BAT0 # I have two batteries
+upower -i /org/freedesktop/UPower/devices/battery_BAT1

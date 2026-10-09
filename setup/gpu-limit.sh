@@ -1,6 +1,6 @@
 #!/bin/bash
 # Sets up persistent GPU power/clock limits for an RX 6800-series card on a small PSU.
-# Run with: sudo ./setup-gpu-limit.sh
+# Run with: sudo ./setup/gpu-limit.sh
 set -euo pipefail
 
 if [ "$EUID" -ne 0 ]; then

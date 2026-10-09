@@ -1,6 +1,6 @@
 #!/bin/bash
 # Power profile for waybar (JSON). Shown only on battery; "next" cycles profiles.
-# On AC it forces performance (covers boot; udev from setup-power-profiles.sh handles plug events).
+# On AC it forces performance (covers boot; udev from setup/power-profiles.sh handles plug events).
 command -v powerprofilesctl >/dev/null || exit 0
 ac=""
 for p in /sys/class/power_supply/*; do

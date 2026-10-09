@@ -1,7 +1,7 @@
 #!/bin/bash
 # Disables CPU boost persistently (Ryzen 5 3600 runs too hot while gaming: ~95°C).
 # Capped at the 3.6 GHz base clock. acpi-cpufreq can't set an in-between cap (only 3.6/2.8/2.2 GHz).
-# Run with: sudo ./setup-cpu-limit.sh      Undo: sudo systemctl disable --now cpu-limit.service; echo 1 | sudo tee /sys/devices/system/cpu/cpufreq/boost
+# Run with: sudo ./setup/cpu-limit.sh      Undo: sudo systemctl disable --now cpu-limit.service; echo 1 | sudo tee /sys/devices/system/cpu/cpufreq/boost
 set -euo pipefail
 
 if [ "$EUID" -ne 0 ]; then

@@ -1,0 +1,26 @@
+#!/bin/bash
+# Searchable list of Hyprland keybinds, read straight from keybinds.lua (bound to SUPER+/).
+# `hyprctl binds` is no use here: with the Lua config every bind shows up as "__lua <index>".
+set -euo pipefail
+
+conf="$HOME/.config/hypr/keybinds.lua"
+
+awk '
+    /^-- / && !/^-- Keybindings/ { section = substr($0, 4); next }   # "-- Volume & brightness"
+    /^ *hl\.bind\(/ {
+        line = $0
+        sub(/^ *hl\.bind\(/, "", line)
+        # Key combo: everything up to the first comma, with the Lua string glue removed
+        split(line, parts, /, /)
+        keys = parts[1]
+        gsub(/mainMod/, "SUPER", keys); gsub(/altMod/, "ALT", keys)
+        gsub(/[" ]*\.\.[" ]*/, "", keys); gsub(/"/, "", keys); gsub(/\+/, " + ", keys); gsub(/  +/, " ", keys)
+        # Action: exec_cmd("...") shows the command, otherwise the dispatcher call
+        action = substr(line, length(parts[1]) + 3)
+        if (match(action, /exec_cmd\("[^"]*"\)/)) action = substr(action, RSTART + 10, RLENGTH - 12)
+        else if (match(action, /exec_cmd\(V\.[a-zA-Z]+\)/)) action = substr(action, RSTART + 11, RLENGTH - 12)   # V.menu -> menu
+        else { sub(/^hl\.dsp\./, "", action); sub(/\)[,)].*$/, ")", action) }
+        printf "%-22s %-26s %s\n", keys, section, action
+    }
+' "$conf" | wofi --dmenu --insensitive --prompt "Keybinds" --width 900 --height 600 \
+    --style "$HOME/.config/wofi/style.css" >/dev/null || true

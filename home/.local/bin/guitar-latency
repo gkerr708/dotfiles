@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -uo pipefail
 # Low PipeWire buffer only while a guitar app is open; normal buffer otherwise,
 # so Discord/Dota aren't stuck on the tiny quantum.
 GUITAR_QUANTUM=${GUITAR_QUANTUM:-128}   # 128 @ 48 kHz ≈ 2.7 ms. Raise to 256 if it crackles.

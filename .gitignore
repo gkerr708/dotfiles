@@ -13,14 +13,19 @@ home/.local/share/
 *.key
 *.pem
 home/.secrets
-home/.config/tmux/plugins/
 
-# Backup files created by setup-arch.sh — never commit these
+# Backup files created by setup/arch.sh — never commit these
 **/*.bak
+
+# tmux plugins (installed by tpm)
 home/.config/tmux/plugins/
 
-# Generated preview images from matplotlib-demo/preview.py
-matplotlib-demo/*.png
+# Generated files
+__pycache__/
+home/.config/nvim/spell/*.spl
+
+# App runtime state written into stowed (folded) dirs
+home/.config/ncspot/userstate.cbor
 
 # nchat runtime state — sessions, message history, logs (only *.conf is tracked)
 home/.config/nchat/*

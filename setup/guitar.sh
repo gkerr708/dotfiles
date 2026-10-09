@@ -1,7 +1,7 @@
 #!/bin/bash
 # Sets up a low-latency guitar rig: Carla (plugin host) + NAM amp/cab loader (Ratatouille)
 # + AIDA-X + Guitarix, and a PipeWire low-latency buffer.
-# Run as your normal user (not sudo): ./setup-guitar.sh — it calls sudo/yay itself.
+# Run as your normal user (not sudo): ./setup/guitar.sh — it calls sudo/yay itself.
 # Safe to re-run.
 set -euo pipefail
 
@@ -28,10 +28,10 @@ fi
 echo "[4/4] PipeWire low-latency buffer while a guitar app is open (guitar-latency.service)"
 # Old global low-latency default made Discord/Dota crackle; drop it if present.
 rm -f ~/.config/pipewire/pipewire.conf.d/10-guitar-latency.conf
-DOTFILES=$(cd "$(dirname "$0")" && pwd)
+# The script and unit are linked by stow (setup/arch.sh); re-stow in case this runs first.
+DOTFILES=$(dirname "$(dirname "$(realpath "$0")")")
 mkdir -p ~/.local/bin ~/.config/systemd/user
-ln -sf "$DOTFILES/home/.local/bin/guitar-latency" ~/.local/bin/guitar-latency
-ln -sf "$DOTFILES/home/.config/systemd/user/guitar-latency.service" ~/.config/systemd/user/guitar-latency.service
+stow --dir="$DOTFILES" --target="$HOME" --restow home
 systemctl --user daemon-reload
 systemctl --user enable --now guitar-latency.service
 

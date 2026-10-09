@@ -1,5 +1,5 @@
 /* Base */
-* { font-family: "JetBrainsMono Nerd Font", monospace; font-size: 11px; min-height: 0; }
+* { font-family: "JetBrainsMono Nerd Font", monospace; font-size: 13px; min-height: 0; }
 window#waybar {
   background: rgba(0,0,0,0.0); /* rgba(0, 0, 0, 0.65); */
   border-radius: 14px;
@@ -29,7 +29,7 @@ window#waybar {
 
 #mpris { color: #ffffff; }
 
-#custom-logo { padding: 0 8px; color: #ffffff; font-size: 12px; }
+#custom-logo { padding: 0 8px; color: #ffffff; font-size: 14px; }
 #clock, #pulseaudio, #network, #bluetooth, #custom-cpu, #custom-gpu, #custom-vram, #custom-weather, #custom-power, #memory, #battery,
 #tray, #mpris, #idle_inhibitor, #custom-player, #submap, #window, #backlight, #wireplumber {
   padding: 0 5px; margin: 2px 1px; border-radius: 8px;

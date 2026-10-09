@@ -1,0 +1,11 @@
+#!/bin/bash
+# Turn Hyprland animations off/on (reduced motion). Bound to SUPER+SHIFT+M; resets on `hyprctl reload`.
+set -euo pipefail
+
+if [ "$(hyprctl getoption animations:enabled -j | jq -r .bool)" = true ]; then
+    hyprctl eval 'hl.config({ animations = { enabled = false } })' >/dev/null
+    notify-send -t 1500 "Animations off" 2>/dev/null || true
+else
+    hyprctl eval 'hl.config({ animations = { enabled = true } })' >/dev/null
+    notify-send -t 1500 "Animations on" 2>/dev/null || true
+fi
