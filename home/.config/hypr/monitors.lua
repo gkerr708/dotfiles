@@ -28,6 +28,9 @@ if V.on_thinkpad then
     hl.workspace_rule({ workspace = "4", monitor = V.thinkpad_ext_monitor, persistent = true })
     hl.workspace_rule({ workspace = "5", monitor = V.thinkpad_ext_monitor, persistent = true })
     hl.workspace_rule({ workspace = "6", monitor = V.thinkpad_ext_monitor, persistent = true })
+    hl.workspace_rule({ workspace = "8", monitor = V.thinkpad_ext_monitor })
+    hl.workspace_rule({ workspace = "9", monitor = V.thinkpad_ext_monitor })
+    hl.workspace_rule({ workspace = "10", monitor = V.thinkpad_ext_monitor })
 else
     -- XPS-13 (home) — single monitor
     hl.workspace_rule({ workspace = "1", monitor = V.xps_ext_monitor,  persistent = true })
