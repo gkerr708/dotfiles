@@ -67,6 +67,7 @@ Start scripts with `#!/bin/bash` and `set -euo pipefail`. Leave out `-e` where a
 | `guitar-latency` | Run by `guitar-latency.service`; low PipeWire buffer while a guitar app is open |
 | `hypr-keybinds` | Searchable keybind list (**SUPER + /**) |
 | `hypr-toggle-animations` | Reduced motion on/off (**SUPER + SHIFT + M**) |
+| `webcam [device]` | Webcam preview; **s** saves a screenshot to `~/Pictures/webcam` |
 
 ## Docs
 
