@@ -1,0 +1,11 @@
+#!/bin/bash
+# Live webcam preview; press s to save a screenshot to ~/Pictures/webcam.
+# Usage: webcam [device]   (default /dev/video0)
+set -euo pipefail
+
+dev="${1:-/dev/video0}"
+dir="$HOME/Pictures/webcam"
+mkdir -p "$dir"
+
+exec mpv "av://v4l2:$dev" --profile=low-latency --untimed \
+    --screenshot-dir="$dir" --screenshot-template='%tY-%tm-%td_%tH-%tM-%tS'

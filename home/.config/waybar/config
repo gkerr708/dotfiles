@@ -53,8 +53,7 @@
       "class<brave>": "",
       "title<.*youtube.*>": ""
     },
-    "persistent-workspaces": { "*": [1,2,3,4,5,6,7,8] }, // always show 1–5
-    "on-click": "hyprctl dispatch workspace {id}"
+    "persistent-workspaces": { "*": [1,2,3,4,5,6,7,8] }  // always show 1–8
   },
 
   "hyprland/submap": { "format": " {name}", "tooltip": true },
