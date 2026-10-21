@@ -17,6 +17,7 @@ hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(V.browser))
 -- Help & accessibility
 hl.bind(mainMod .. " + SLASH", hl.dsp.exec_cmd("hypr-keybinds"))                   -- searchable keybind list
 hl.bind(mainMod .. " + SHIFT + M", hl.dsp.exec_cmd("hypr-toggle-animations"))      -- reduced motion on/off
+hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("ascii-weather-toggle"))        -- ASCII weather wallpaper on/off
 
 -- Focus
 hl.bind(altMod .. " + h", hl.dsp.focus({ direction = "left" }))

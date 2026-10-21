@@ -1,0 +1,22 @@
+#!/bin/bash
+# Animated ASCII weather as the desktop background, one per monitor (kitty background panels).
+# Bound to SUPER+SHIFT+W; started from autostart.lua.   ascii-weather-toggle [start|stop]
+set -euo pipefail
+
+running() { pgrep -f 'kitten panel .*ascii-weather' >/dev/null; }
+
+stop() { pkill -f 'kitten panel .*ascii-weather' || true; }
+
+start() {
+    for mon in $(hyprctl monitors -j | jq -r '.[].name'); do
+        kitty +kitten panel --edge=background --output-name="$mon" \
+            -o background=#000000 -o background_opacity=1 -o font_size=11 \
+            ascii-weather >/dev/null 2>&1 &
+    done
+}
+
+case "${1:-toggle}" in
+    start)  running || start ;;
+    stop)   stop ;;
+    toggle) if running; then stop; else start; fi ;;
+esac

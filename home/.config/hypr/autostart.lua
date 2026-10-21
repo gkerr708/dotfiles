@@ -26,4 +26,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("bash -c 'hyprpaper & sleep 1"
         .. "; hyprctl hyprpaper wallpaper \"" .. first_monitor .. "," .. V.wallpaper_internal .. "\""
         .. "; hyprctl hyprpaper wallpaper \"" .. ext_monitor .. "," .. V.wallpaper_external .. "\"'")
+
+    -- Animated ASCII weather on top of the (black) wallpaper; SUPER+SHIFT+W toggles it.
+    hl.exec_cmd("bash -c 'sleep 2; ascii-weather-toggle start'")
 end)
