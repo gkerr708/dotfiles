@@ -1,11 +1,24 @@
 #!/usr/bin/env python3
 """Animated ASCII weather for the current conditions in Halifax (wttr.in), in Rosé Pine.
 
+The weather plays over the Halifax waterfront seen from Dartmouth (harbour, Macdonald Bridge,
+downtown, Georges Island lighthouse), dressed up for the time of year:
+    Feb 10-14   hearts floating up, pink windows
+    Apr 15-May  cherry petals
+    Jun-Sep     sailboats on summer days, fireflies on clear nights
+    Sep 22-Nov  falling leaves that gust and pile up on the roofs
+    Oct 24-31   pumpkins, ghosts, bats, a witch across the harvest moon (doubled on the 31st)
+    Nov 5-11    poppies on the rooftops
+    Dec-Jan 6   roof lights, chasing lights on the bridge, a tree downtown; Santa on Dec 24-25
+    fireworks   New Year's, Canada Day, Natal Day (with a finale around midnight)
+
 Runs in any terminal; ascii-weather-toggle runs it as the desktop background.
     ascii-weather                  # live weather, refreshed every 15 min
     ascii-weather --scene snow     # force a scene: rain storm snow fog cloudy partly sunny night
     ascii-weather --cycle 8        # show every scene for 8 s each (demo)
     ascii-weather --wind -40       # force wind in km/h (+ blows right, - blows left)
+    ascii-weather --date 12-31     # pretend it's another day (YYYY-MM-DD or MM-DD)
+    ascii-weather --no-skyline     # just the sky
 Quit with q, Esc or Ctrl+C.
 """
 import argparse
@@ -22,7 +35,7 @@ import threading
 import time
 import tty
 import urllib.request
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 
 URL = 'https://wttr.in/Halifax,Nova+Scotia?format=j1'
@@ -74,6 +87,14 @@ MOON_ART = ['   _.._  ',
             "\\  '.___.;",
             " '._  _.' ",
             '    ``    ']
+ISLAND_ART = ['    _    ',               # Georges Island and its lighthouse; the 'o' is the lamp
+              '   [o]   ',
+              '   |=|   ',
+              ' __|_|__ ',
+              '/       \\']
+FERRY_ART = [' _[==]_ ',
+             '\\______/']
+BULBS = (LOVE, GOLD, FOAM, IRIS)
 
 
 # ---------------------------------------------------------------- weather data
@@ -81,6 +102,7 @@ MOON_ART = ['   _.._  ',
 class Weather:
     def __init__(self):
         self.scene, self.caption = self._fallback(), ''
+        self.day = 7 <= datetime.now().hour < 19
         self.drift = 0.0                   # km/h across the screen, + = blowing to the right (east)
         self._load(self._read_cache())
 
@@ -123,7 +145,7 @@ class Weather:
             desc = c['weatherDesc'][0]['value'].strip().lower()
             # winddirDegree is where the wind comes FROM; it blows toward the opposite side
             speed, frm = int(c.get('windspeedKmph', 0)), int(c.get('winddirDegree', 270))
-            self.scene, self.drift = scene, -speed * math.sin(math.radians(frm))
+            self.scene, self.day, self.drift = scene, day, -speed * math.sin(math.radians(frm))
             self.caption = f"halifax  {c['temp_C']}°c  {desc}"
         except (KeyError, IndexError, ValueError):
             pass
@@ -144,33 +166,38 @@ class Weather:
 # ---------------------------------------------------------------- canvas
 
 class Canvas:
-    def __init__(self, w, h):
+    def __init__(self, w, h, mask=None):
         self.w, self.h = w, h
         self.chars = [[' '] * w for _ in range(h)]
         self.cols = [[None] * w for _ in range(h)]
+        self.mask = mask           # cells the skyline owns: the sky and weather only draw there with over=True
 
-    def put(self, x, y, ch, col):
+    def _free(self, x, y, over):
+        return 0 <= x < self.w and 0 <= y < self.h and (over or not self.mask or not self.mask[y][x])
+
+    def put(self, x, y, ch, col, over=False):
         x, y = int(x), int(y)
-        if 0 <= x < self.w and 0 <= y < self.h and ch != ' ':
+        if ch != ' ' and self._free(x, y, over):
             self.chars[y][x] = ch
             self.cols[y][x] = col
 
-    def text(self, x, y, s, col, transparent=True):
+    def text(self, x, y, s, col, transparent=True, over=False):
         for i, ch in enumerate(s):
-            if ch != ' ' or not transparent:
-                self.put(x + i, y, ch, col)
+            if not transparent:
+                self.erase(x + i, y, over)
+            self.put(x + i, y, ch, col, over)
 
-    def art(self, x, y, lines, col, solid=False):
+    def art(self, x, y, lines, col, solid=False, over=False):
         for dy, line in enumerate(lines):
             if solid and line.strip():
                 a = len(line) - len(line.lstrip())
                 for i in range(a, len(line.rstrip())):
-                    self.erase(x + i, y + dy)
-            self.text(x, y + dy, line, col)
+                    self.erase(x + i, y + dy, over)
+            self.text(x, y + dy, line, col, over=over)
 
-    def erase(self, x, y):
+    def erase(self, x, y, over=False):
         x, y = int(x), int(y)
-        if 0 <= x < self.w and 0 <= y < self.h:
+        if self._free(x, y, over):
             self.chars[y][x] = ' '
 
     def render(self):
@@ -194,12 +221,510 @@ def dim(c, f):
     return tuple(int(v * f) for v in c)
 
 
+# ---------------------------------------------------------------- skyline
+
+class Skyline:
+    """Halifax from the Dartmouth side: harbour, Macdonald Bridge, downtown and Georges Island."""
+    WATER = 3
+
+    def __init__(self, w, h):
+        self.w, self.h = w, h
+        rng = random.Random(1749)                    # same city every run (Halifax was founded in 1749)
+        self.wt = h - self.WATER                     # first water row
+        base = self.wt - 1                           # street level
+        hmax = max(5, min(18, int(h * 0.3)))
+        self.cells = {}                              # (x, y) -> (ch, role, solid)
+        self.roofs = []                              # (x0, x1, y) of each roof line
+        self.cable, self.cars, self.span, self.deck = [], [], 0, base
+        city0 = self._bridge(rng, min(100, max(36, int(w * 0.36))), base, hmax) if w >= 70 else 0
+        for x in range(city0, w):
+            self._cell(x, base, '_', 'wall')         # seawall, shows between buildings
+        self._buildings(rng, city0, base, hmax)
+        ix = int(w * 0.63)
+        for dy, line in enumerate(ISLAND_ART):
+            a, b = len(line) - len(line.lstrip()), len(line.rstrip())
+            for i in range(a, b):
+                ch = line[i]
+                role = 'lamp' if ch == 'o' else 'light' if dy < 3 or 3 <= i <= 5 else 'island'
+                self._cell(ix + i, self.wt - len(ISLAND_ART) + 1 + dy, ch, role)
+        self.lamp = (ix + 4, self.wt - 3)
+
+        # weather lands on the first solid row of each column; everything from there down is masked
+        self.surface = [self.wt] * w
+        for (x, y), (_, _, solid) in self.cells.items():
+            if solid and y < self.surface[x]:
+                self.surface[x] = y
+        self.mask = [[False] * w for _ in range(h)]
+        for x, y in self.cells:
+            self.mask[y][x] = True
+        for x in range(w):
+            for y in range(self.surface[x], h):
+                self.mask[y][x] = True
+        self.lit = {k: rng.random() < 0.5 for k, v in self.cells.items() if v[1] == 'win'}
+        self.windows = list(self.lit)
+        self.ferry = None
+
+    def _cell(self, x, y, ch, role, solid=True):
+        if 0 <= x < self.w and 0 <= y < self.h:
+            self.cells[(x, y)] = (ch, role, solid)
+
+    def _bridge(self, rng, span, base, hmax):
+        """Suspension bridge from the left edge; returns the column where the city starts."""
+        deck = base - 2
+        top = deck - max(4, min(7, hmax // 2))       # cells are twice as tall as wide, so keep towers short
+        t1, t2 = int(span * 0.2), int(span * 0.75)
+
+        def cable_y(x):
+            if x <= t1:
+                return deck - 1 - (deck - 1 - top) * (x / t1) ** 1.6
+            if x >= t2:
+                return deck - 1 - (deck - 1 - top) * ((span - x) / (span - t2)) ** 1.6
+            mid, half = (t1 + t2) / 2, (t2 - t1) / 2
+            return top + (deck - 2 - top) * (1 - ((x - mid) / half) ** 2)
+
+        for x in range(span):
+            y, slope = round(cable_y(x)), cable_y(x + 1) - cable_y(x)
+            self._cell(x, y, '-' if abs(slope) < 0.45 else '\\' if slope > 0 else '/', 'cable', False)
+            self.cable.append((x, y))
+            if x % 3 == 0:
+                for yy in range(y + 1, deck):
+                    self._cell(x, yy, ':', 'hanger', False)
+        for tx in (t1, t2):
+            self._cell(tx, top - 1, '^', 'wall')
+            for y in range(top, base + 1):
+                self._cell(tx, y, 'H', 'wall')
+        for x in range(span + 1):
+            self._cell(x, deck, '=', 'wall')
+        self.span, self.deck = span, deck
+        self.cars = [[rng.random() * span, rng.choice((-1, 1)) * (0.25 + rng.random() * 0.2)]
+                     for _ in range(max(1, span // 14))]
+        return span - 2
+
+    def _buildings(self, rng, x0, base, hmax):
+        span = self.w - x0
+        core = x0 + span * 0.55                      # downtown: taller buildings
+        x = x0
+        while x < self.w:
+            c = math.exp(-((x - core) / (span * 0.28)) ** 2)
+            bw = rng.randint(5, 11)
+            if rng.random() < 0.12 + 0.3 * c:
+                bh = rng.randint(int(hmax * 0.7), hmax)
+            else:
+                bh = rng.randint(3, max(4, int(hmax * (0.25 + 0.35 * c))))
+            self._building(x, bw, bh, base, bh >= hmax * 0.85)
+            x += bw - 1 + (0 if rng.random() < 0.75 else rng.randint(2, 4))
+
+    def _building(self, x0, bw, bh, base, tower):
+        roof = base - bh + 1
+        for i in range(bw):
+            x = x0 + i
+            if 0 < i < bw - 1:
+                self._cell(x, roof, '_', 'wall')
+            for y in range(roof + 1, base + 1):
+                if i in (0, bw - 1):
+                    self._cell(x, y, '|', 'wall')
+                elif i % 2 == 0 and i < bw - 2:
+                    self._cell(x, y, ':', 'win')
+                else:
+                    self._cell(x, y, ' ', 'wall')
+        self.roofs.append((x0 + 1, x0 + bw - 2, roof))
+        if tower:                                    # antenna with an aircraft warning light
+            ax = x0 + bw // 2
+            self._cell(ax, roof - 1, '|', 'wall', False)
+            self._cell(ax, roof - 2, '|', 'wall', False)
+            self._cell(ax, roof - 3, '.', 'beacon', False)
+
+    def draw_back(self, cv, sc):
+        """Water, buildings, bridge and island: drawn before the weather, which can't paint over them."""
+        t, dark = sc.t, sc.dark
+        if dark:                                     # windows go on and off; fewer after midnight
+            target = 0.2 if datetime.now().hour < 6 else 0.55
+            for _ in range(2):
+                self.lit[random.choice(self.windows)] = random.random() < target
+        for y in range(self.wt, cv.h):
+            depth = y - self.wt
+            col = dim(PINE, (0.55 if dark else 0.9) - 0.15 * depth)
+            for x in range(cv.w):
+                v = math.sin(x * 0.35 + depth * 2.1 - t * 0.12) + math.sin(x * 0.13 + t * 0.05)
+                if v > 0.2:
+                    cv.put(x, y, '~' if v > 1.0 else '-', col, over=True)
+        wall = dim(MUTED, 0.9) if dark else dim(SUBTLE, 0.75)
+        cols = {'wall': wall, 'cable': dim(SUBTLE, 0.6 if dark else 0.8), 'hanger': dim(MUTED, 0.6 if dark else 0.8),
+                'island': dim(MUTED, 0.8), 'light': dim(TEXT, 0.7 if dark else 0.85),
+                'lamp': GOLD if dark else dim(GOLD, 0.6)}
+        lit_cols = set()
+        for (x, y), (ch, role, _) in self.cells.items():
+            if ch == ' ':
+                cv.erase(x, y, over=True)            # e.g. the island hides the water behind it
+            elif role == 'win':
+                on = dark and self.lit[(x, y)]
+                if on:
+                    lit_cols.add(x)
+                pal = sc.season.windows
+                lit = pal[(x * 7 + y * 3) % len(pal)] if pal else GOLD
+                cv.put(x, y, ch, lit if on else dim(MUTED, 0.45 if dark else 0.8), over=True)
+            elif role == 'beacon':
+                if dark and (t // 8) % 2:
+                    cv.put(x, y, '*', LOVE, over=True)
+            else:
+                cv.put(x, y, ch, cols[role], over=True)
+        for x in lit_cols:                           # lit windows shimmer on the water
+            for y in (self.wt, self.wt + 1):
+                if (x, y) not in self.cells and random.random() < 0.35:
+                    cv.put(x, y, random.choice('.,'), dim(GOLD, 0.5 - 0.15 * (y - self.wt)), over=True)
+
+    def draw_front(self, cv, sc):
+        """Things in front of the weather: bridge traffic, the ferry and the lighthouse beam."""
+        t, dark = sc.t, sc.dark
+        for car in self.cars:
+            car[0] = (car[0] + car[1]) % self.span
+            if dark:
+                cv.put(car[0], self.deck - 1, '.', TEXT, over=True)
+                cv.put(car[0] - (1 if car[1] > 0 else -1), self.deck - 1, '.', LOVE, over=True)
+            else:
+                cv.put(car[0], self.deck - 1, 'o', dim(TEXT, 0.6), over=True)
+
+        if self.ferry is None and random.random() < 1 / (FPS * 60):
+            d = random.choice((-1, 1))
+            self.ferry = [-len(FERRY_ART[1]) if d > 0 else cv.w, d * 0.12]
+        if self.ferry:
+            f = self.ferry
+            f[0] += f[1]
+            for dy, line in enumerate(FERRY_ART):
+                for i, ch in enumerate(line):
+                    col = (GOLD if dark else dim(TEXT, 0.6)) if ch == '=' else dim(TEXT, 0.75)
+                    cv.put(f[0] + i, self.wt + dy, ch, col, over=True)
+            if not -len(FERRY_ART[1]) - 1 <= f[0] <= cv.w + 1:
+                self.ferry = None
+
+        if dark:                                     # the lighthouse sweeps around
+            lx, ly = self.lamp
+            reach = math.cos(t * 0.05) * cv.w * 0.12
+            n, s = int(abs(reach)), (1 if reach > 0 else -1)
+            for i in range(1, n + 1):
+                cv.put(lx + i * s, ly, '-', dim(GOLD, 0.55 * (1 - i / (n + 1))), over=True)
+            if n < cv.w * 0.015:
+                cv.put(lx, ly, '*', TEXT, over=True)
+
+
+# ---------------------------------------------------------------- seasons
+
+GHOST_ART = [' .-. ',
+             '(o o)',
+             '| O |']
+GHOST_TAILS = ["'~~~'", "~'~'~"]
+WITCH_ART = ['    /\\      ',              # flies right to left, broom first
+             '   /__\\_    ',
+             '   (oo)     ',
+             '-===\\/===}}}']
+TREE_ART = ['    *    ',
+            '   /o\\   ',
+            '  /o o\\  ',
+            ' /o o o\\ ',
+            '/o o o o\\',
+            '   |_|   ']
+SLEIGH_ART = [" __   ,Y, ,Y, ,Y,.",       # flies left to right; the '.' is Rudolph's nose
+              "|o_/==/'\\=/'\\=/'\\"]
+SAIL_ART = ['  |\\  ',
+            '  | \\ ',
+            ' _|__\\_',
+            ' \\____/']
+SAIL_ART_LEFT = [line[::-1].translate(str.maketrans('/\\', '\\/')) for line in SAIL_ART]
+
+
+def holidays(d):
+    md = (d.month, d.day)
+    on = set()
+    for name, a, b in (('valentines', (2, 10), (2, 14)), ('petals', (4, 15), (5, 31)),
+                       ('boats', (6, 1), (9, 30)), ('fireflies', (6, 15), (9, 15)),
+                       ('leaves', (9, 22), (11, 20)), ('halloween', (10, 24), (11, 1)),
+                       ('remembrance', (11, 5), (11, 11)), ('lights', (12, 1), (1, 6)),
+                       ('santa', (12, 24), (12, 25))):
+        if (a <= md <= b) if a <= b else (md >= a or md <= b):
+            on.add(name)
+    if md in ((12, 31), (1, 1), (7, 1)) or (d.month == 8 and d.day <= 7 and d.weekday() == 0):
+        on.add('fireworks')                          # New Year's, Canada Day, Natal Day (1st Monday of August)
+    return on
+
+
+class Season:
+    def __init__(self, today, w, h, skyline):
+        self.on = on = holidays(today)
+        self.skyline = skyline
+        self.spooky = 2 if (today.month, today.day) == (10, 31) else 1     # Halloween night itself: double it
+        r = random.random
+        rng = random.Random(today.toordinal())
+        # lit window colours and the moon follow the season (None = the usual gold windows and pale moon)
+        self.windows = ((GOLD, LOVE, IRIS, GOLD) if 'halloween' in on else (ROSE, LOVE, GOLD) if 'valentines' in on
+                        else (GOLD, GOLD, LOVE, FOAM) if 'lights' in on else None)
+        self.moon = GOLD if 'halloween' in on else None                  # harvest moon
+
+        self.falling = []
+        if on & {'leaves', 'petals'}:
+            cols = ((LOVE, GOLD, ROSE, dim(GOLD, 0.7), dim(LOVE, 0.7)) if 'leaves' in on
+                    else (ROSE, dim(ROSE, 0.7), TEXT))
+            self.falling = [[r() * w, r() * h, 0.06 + r() * 0.1, r() * 6.3, random.choice(cols)]
+                            for _ in range(w * h // 200)]
+        self.litter = {}                             # x -> [ch, col, frames left]: fallen leaves
+        self.gust, self.gust_dir = 0, 1
+
+        # roof cells that are still roof after the buildings overlapped, for things that sit on roofs
+        roof = (lambda x, y: skyline.cells.get((x, y), ('',))[0] == '_') if skyline else (lambda x, y: False)
+        spots = [(x, y) for x0, x1, y in skyline.roofs for x in range(x0, x1 + 1) if roof(x, y)] if skyline else []
+
+        def place(n, count, gap):
+            """Up to count spots for something n wide, at least gap apart."""
+            ok = [(x, y) for x, y in spots if all(roof(x + i, y) for i in range(n))]
+            out = []
+            for x, y in rng.sample(ok, len(ok)):
+                if len(out) < count and all(abs(x - px) > gap for px, _ in out):
+                    out.append((x, y))
+            return out
+
+        self.pumpkins = place(5, 8 * self.spooky, 6) if 'halloween' in on else []
+        self.poppies = place(1, max(3, w // 15), 4) if 'remembrance' in on else []
+        self.roof_bulbs, self.cable_bulbs, self.tree = [], [], None
+        if 'lights' in on and skyline:
+            self.roof_bulbs = [(x, y) for x, y in spots if x % 2 == 0]
+            self.cable_bulbs = skyline.cable[::2]
+            wide = [(x0, y) for x0, x1, y in skyline.roofs
+                    if x1 - x0 >= 8 and y > len(TREE_ART) + 2 and all(roof(x, y) for x in range(x0, x0 + 9))]
+            if wide:                                 # a big tree on the downtown roof nearest the middle
+                self.tree = min(wide, key=lambda p: abs(p[0] - w * 0.6))
+        self.flies = [[r() * w, h * (0.5 + r() * 0.4), r() * 6.3, 0.05 + r() * 0.1]
+                      for _ in range(w // 6)] if 'fireflies' in on else []
+        self.ghosts, self.bats, self.hearts, self.boats, self.trail = [], [], [], [], []
+        self.rockets, self.sparks = [], []
+        self.witch = self.santa = None
+
+    def draw(self, cv, sc):
+        on = self.on
+        if self.falling:
+            self._leaves(cv, sc)
+        if 'halloween' in on:
+            self._halloween(cv, sc)
+        for x, y in self.poppies:
+            cv.put(x, y, '@', LOVE, over=True)
+        if 'lights' in on:
+            self._lights(cv, sc)
+        if 'santa' in on:
+            self._santa(cv, sc)
+        if 'valentines' in on:
+            self._hearts(cv, sc)
+        if 'boats' in on:
+            self._boats(cv, sc)
+        self._fireworks(cv, sc)                      # also lets rockets already in the air finish at dawn
+        if self.flies and sc.dark and sc.kind not in ('rain', 'storm', 'snow'):
+            self._fireflies(cv, sc.t)
+
+    def _leaves(self, cv, sc):
+        """Leaves (or petals) tumble down; now and then a gust whips them sideways."""
+        t = sc.t
+        if self.gust:
+            self.gust -= 1
+        elif random.random() < 1 / (FPS * 20):
+            self.gust, self.gust_dir = FPS * 3, (-1 if sc.drift < 0 else 1)
+        push = math.sin(math.pi * self.gust / (FPS * 3)) * 1.5 * self.gust_dir if self.gust else 0
+        for f in self.falling:
+            f[1] += f[2] - abs(push) * 0.05
+            f[0] += math.sin(t * 0.06 + f[3]) * 0.35 + sc.drift * 0.006 + push
+            x = int(f[0]) % cv.w
+            if f[1] >= sc._ground(x):
+                if 'leaves' in self.on:
+                    self.litter[x] = [random.choice(".,'"), f[4], FPS * 90]
+                f[0], f[1] = random.random() * cv.w, -1
+            cv.put(f[0] % cv.w, f[1], ",'"[int(t * 0.1 + f[3]) % 2], dim(f[4], 0.6) if sc.dark else f[4])
+        for x, lf in list(self.litter.items()):     # leaves on the roofs and the street, until blown away
+            lf[2] -= 1
+            if lf[2] <= 0 or (self.gust and random.random() < 0.02):
+                del self.litter[x]
+            else:
+                cv.put(x, sc._ground(x), lf[0], dim(lf[1], 0.5 if sc.dark else 0.8))
+
+    def _halloween(self, cv, sc):
+        t, dark, k = sc.t, sc.dark, self.spooky
+        for x, y in self.pumpkins:
+            for i, ch in enumerate('(^v^)'):
+                face = ch in '^v'
+                if dark:
+                    col = (LOVE if random.random() < 0.15 else GOLD) if face else dim(GOLD, 0.7)
+                else:
+                    col = dim(GOLD, 0.5) if face else GOLD
+                cv.put(x + i, y, ch, col, over=True)
+
+        # ghosts drift up out of the streets
+        if random.random() < (0.006 if dark else 0.0015) * k:
+            start = sc.skyline.wt - 4 if sc.skyline else cv.h - 4
+            self.ghosts.append([random.uniform(0, cv.w - 5), start, random.uniform(0.04, 0.09), random.random() * 6.3, 0])
+        for g in self.ghosts:
+            g[1] -= g[2]
+            g[4] += 1
+            fade = min(1, g[4] / 20) * max(0, min(1, (g[1] - 1) / 8))   # fade in, then out near the top
+            cv.art(g[0] + math.sin(t * 0.08 + g[3]) * 2, g[1], GHOST_ART + [GHOST_TAILS[(t // 6) % 2]],
+                   dim(TEXT, 0.85 * fade), solid=True, over=True)
+        self.ghosts = [g for g in self.ghosts if g[1] > -4]
+
+        if dark and random.random() < 0.02 * k:
+            d = random.choice((-1, 1))
+            self.bats.append([-3 if d > 0 else cv.w, 2 + random.random() * cv.h * 0.4,
+                              d * (0.3 + random.random() * 0.3), random.random() * 6.3])
+        for b in self.bats:
+            b[0] += b[2]
+            cv.text(b[0], b[1] + math.sin(t * 0.3 + b[3]) * 1.2, '/v\\' if (t // 3) % 2 else '-v-', SUBTLE)
+        self.bats = [b for b in self.bats if -4 < b[0] < cv.w + 4]
+
+        # a witch crosses the sky (and the harvest moon)
+        if dark and self.witch is None and random.random() < k / (FPS * 40):
+            self.witch = [cv.w + 2.0, random.uniform(2, max(3, cv.h * 0.2))]
+        if self.witch:
+            self.witch[0] -= 0.45
+            cv.art(self.witch[0], self.witch[1] + math.sin(t * 0.1) * 0.8, WITCH_ART, dim(IRIS, 0.9), solid=True)
+            if self.witch[0] < -len(WITCH_ART[0]):
+                self.witch = None
+
+    def _lights(self, cv, sc):
+        """Twinkling lights on the roofs, chasing lights on the bridge cable, and a tree downtown."""
+        t, dark = sc.t, sc.dark
+        bulbs = [(x, y, k, math.sin(t * 0.15 + k * 1.7) > -0.3) for k, (x, y) in enumerate(self.roof_bulbs)]
+        bulbs += [(x, y, k, (k - t // 3) % 4 != 0) for k, (x, y) in enumerate(self.cable_bulbs)]
+        for x, y, k, lit in bulbs:
+            col = BULBS[k % len(BULBS)]
+            cv.put(x, y, 'o' if dark else '.', col if lit else dim(col, 0.35 if dark else 0.6), over=True)
+        if self.tree:
+            x0, base = self.tree
+            top = base - len(TREE_ART)
+            for dy, line in enumerate(TREE_ART):
+                a = len(line) - len(line.lstrip())
+                for i in range(a, len(line.rstrip())):
+                    cv.erase(x0 + i, top + dy, over=True)
+                    ch = line[i]
+                    if ch == '*':
+                        col = GOLD if (t // 6) % 2 else TEXT
+                    elif ch == 'o':
+                        col = BULBS[(i + dy + t // 5) % len(BULBS)]
+                        col = col if dark else dim(col, 0.8)
+                    elif ch in '/\\':
+                        col = PINE if dark else FOAM
+                    else:
+                        col = dim(GOLD, 0.5)
+                    cv.put(x0 + i, top + dy, ch, col, over=True)
+
+    def _santa(self, cv, sc):
+        t = sc.t
+        if sc.dark and self.santa is None and random.random() < 1 / (FPS * 30):
+            self.santa = [-len(SLEIGH_ART[0]) - 1.0, random.uniform(3, max(4, cv.h * 0.3))]
+        if self.santa:
+            s = self.santa
+            s[0] += 0.6
+            y = s[1] + math.sin(t * 0.12) * 0.7
+            self.trail.append([s[0] + random.uniform(-1, 2), y + 1 + random.uniform(-0.5, 0.5), FPS])
+            for dy, line in enumerate(SLEIGH_ART):
+                for i, ch in enumerate(line):
+                    if ch == '.':
+                        col = LOVE if (t // 4) % 2 else dim(LOVE, 0.5)
+                    elif ch == 'o':
+                        col = TEXT
+                    elif i <= 3:
+                        col = LOVE
+                    else:
+                        col = dim(GOLD, 0.7) if ch == '=' else dim(ROSE, 0.75)
+                    cv.put(s[0] + i, y + dy, ch, col)
+            if s[0] > cv.w + 2:
+                self.santa = None
+        for p in self.trail:                         # sparkle trail behind the sleigh
+            p[2] -= 1
+            p[1] += 0.03
+            cv.put(p[0], p[1], '*' if p[2] > FPS * 0.6 else '.', dim(GOLD, p[2] / FPS))
+        self.trail = [p for p in self.trail if p[2] > 0]
+
+    def _hearts(self, cv, sc):
+        if random.random() < 0.06:
+            start = sc.skyline.wt - 2 if sc.skyline else cv.h - 1
+            self.hearts.append([random.random() * cv.w, start, random.uniform(0.05, 0.12), random.random() * 6.3,
+                                random.choice((ROSE, LOVE))])
+        for hh in self.hearts:
+            hh[1] -= hh[2]
+            col = hh[4] if hh[1] > cv.h * 0.2 else dim(hh[4], 0.6)
+            cv.put(hh[0] + math.sin(sc.t * 0.07 + hh[3]) * 1.5, hh[1], '♥', col)
+        self.hearts = [hh for hh in self.hearts if hh[1] > 0]
+
+    def _boats(self, cv, sc):
+        """Sailboats on the harbour on summer days, sailing with the wind."""
+        if not sc.skyline or sc.dark or sc.kind in ('storm', 'snow'):
+            return
+        v = (-1 if sc.drift < 0 else 1) * (0.03 + abs(sc.drift) * 0.002)
+        art = SAIL_ART if v > 0 else SAIL_ART_LEFT
+        if len(self.boats) < 2 and random.random() < 1 / (FPS * 20):
+            self.boats.append([-8.0 if v > 0 else float(cv.w), random.uniform(0.7, 1.3)])
+        for b in self.boats:
+            b[0] += v * b[1]
+            for dy, line in enumerate(art):
+                for i, ch in enumerate(line):
+                    col = dim(LOVE, 0.8) if dy == len(art) - 1 or ch == '_' else TEXT
+                    cv.put(b[0] + i, sc.skyline.wt - 2 + dy, ch, col, over=True)
+        self.boats = [b for b in self.boats if -9 <= b[0] <= cv.w + 1]
+
+    def _fireworks(self, cv, sc):
+        if 'fireworks' in self.on and sc.dark:
+            rate = 0.15 if datetime.now().hour in (23, 0) else 0.04    # the finale
+            if random.random() < rate:
+                start = sc.skyline.wt - 1 if sc.skyline else cv.h - 1
+                self.rockets.append([random.uniform(0.1, 0.9) * cv.w, start, random.uniform(0.5, 0.9),
+                                     random.uniform(3, cv.h * 0.45)])
+        for rk in self.rockets:
+            rk[1] -= rk[2]
+            cv.put(rk[0], rk[1], '|', dim(GOLD, 0.8))
+            cv.put(rk[0], rk[1] + 1, '.', dim(GOLD, 0.4))
+            if rk[1] <= rk[3]:
+                self._burst(rk[0], rk[1])
+        self.rockets = [rk for rk in self.rockets if rk[1] > rk[3]]
+        for s in self.sparks:
+            px, py = s[0], s[1]
+            s[0] += s[2]
+            s[1] += s[3]
+            s[2] *= 0.92
+            s[3] = s[3] * 0.92 + s[6]               # gravity
+            s[4] -= 1
+            if s[7] and s[4] < 8:                    # crackle: white flickers at the end
+                if random.random() < 0.5:
+                    cv.put(s[0], s[1], random.choice('+*'), TEXT)
+                continue
+            cv.put(px, py, '.', dim(s[5], 0.35))
+            cv.put(s[0], s[1], '*' if s[4] > 14 else '+' if s[4] > 7 else '.', dim(s[5], min(1, 0.3 + s[4] / 20)))
+            if sc.skyline and random.random() < 0.15:  # reflected in the harbour
+                cv.put(s[0], sc.skyline.wt + random.randint(0, 2), '.', dim(s[5], 0.45), over=True)
+        self.sparks = [s for s in self.sparks if s[4] > 0]
+
+    def _burst(self, x, y):
+        kind = random.choice(('peony', 'peony', 'ring', 'willow', 'crackle', 'double'))
+        cols = random.sample((LOVE, GOLD, FOAM, IRIS, ROSE), 2)
+        n = random.randint(24, 40)
+        for i in range(n):
+            a = 2 * math.pi * i / n + random.uniform(-0.1, 0.1)
+            sp = 1.0 if kind == 'ring' else random.uniform(0.3, 1.0)
+            col = GOLD if kind == 'willow' else cols[i % 2] if kind == 'double' else cols[0]
+            life = random.randint(28, 40) if kind == 'willow' else random.randint(16, 26)
+            self.sparks.append([x, y, math.cos(a) * sp * 2.2, math.sin(a) * sp * 1.1, life, col,
+                                0.06 if kind == 'willow' else 0.03, kind == 'crackle'])
+
+    def _fireflies(self, cv, t):
+        for f in self.flies:
+            f[0] = (f[0] + random.uniform(-0.15, 0.15)) % cv.w
+            f[1] = min(cv.h - 1, max(cv.h * 0.4, f[1] + random.uniform(-0.08, 0.08)))
+            b = math.sin(t * f[3] + f[2])
+            if b > 0.5:
+                cv.put(f[0], f[1], '*' if b > 0.9 else '.', GOLD if b > 0.8 else dim(GOLD, 0.6), over=True)
+
+
 # ---------------------------------------------------------------- scenes
 
 class Scene:
-    def __init__(self, kind, w, h, drift):
+    def __init__(self, kind, w, h, drift, today, skyline=True):
         self.kind, self.w, self.h, self.drift = kind, w, h, drift
-        self.t = 0
+        self.t, self.dark = 0, kind == 'night'
+        self.skyline = Skyline(w, h) if skyline and w >= 40 and h >= 15 else None
+        self.surface = self.skyline.surface if self.skyline else [h] * w
+        self.season = Season(today, w, h, self.skyline)
         area = w * h
         r = random.random
         heavy = kind == 'storm'
@@ -226,7 +751,17 @@ class Scene:
     # each step draws one frame
     def step(self, cv):
         self.t += 1
+        if self.skyline:
+            self.skyline.draw_back(cv, self)
         getattr(self, f'_{self.kind}')(cv)
+        if self.skyline:
+            self.skyline.draw_front(cv, self)
+        self.season.draw(cv, self)
+
+    def _ground(self, x):
+        """Row just above whatever is at column x (a roof, the bridge deck, or the bottom of the screen)."""
+        x = int(x)
+        return self.surface[x] - 1 if 0 <= x < self.w else self.h - 1
 
     def _wind_speed(self):
         """Cells per frame for a factor-1 cloud: a slow base drift plus the wind, signed by direction."""
@@ -255,8 +790,8 @@ class Scene:
         for d in self.drops:
             d[1] += d[2]
             d[0] += slant * d[2]
-            if d[1] >= cv.h - 1:
-                self.splashes.append([d[0], cv.h - 1, 3])
+            if d[1] >= self._ground(d[0]):
+                self.splashes.append([d[0], self._ground(d[0]), 3])
                 d[0], d[1] = random.uniform(lo, hi), -random.random() * 5
             col = FOAM if d[3] > 0.85 else PINE if d[3] > 0.3 else dim(PINE, 0.7)
             cv.put(d[0], d[1], ch, col)
@@ -293,12 +828,12 @@ class Scene:
                 self.bolt = []
 
     def _snow(self, cv):
-        cap = max(2, cv.h // 8)
+        cap = 2 if self.skyline else max(2, cv.h // 8)   # rooftops only hold a little
         for f in self.flakes:
             f[1] += f[2]
             f[0] += math.sin(self.t * 0.05 + f[3]) * 0.25 + self.drift * 0.004
             x = int(f[0]) % cv.w
-            ground = cv.h - 1 - int(self.pile[x])
+            ground = self._ground(x) - int(self.pile[x])
             if f[1] >= ground:
                 if self.pile[x] < cap:
                     self.pile[x] += 0.15
@@ -307,7 +842,7 @@ class Scene:
         for x, hgt in enumerate(self.pile):
             full = int(hgt)
             for i in range(full):
-                cv.put(x, cv.h - 1 - i, ':' if i < full - 1 else '.', dim(TEXT, 0.55))
+                cv.put(x, self._ground(x) - i, ':' if i < full - 1 else '.', dim(TEXT, 0.55))
         if self.t % FPS == 0:                     # slowly settle so it never fills up
             self.pile = [max(0.0, p - 0.01) for p in self.pile]
         self._draw_clouds(cv, dim(MUTED, 0.7))
@@ -321,7 +856,7 @@ class Scene:
             for i in range(band[3]):
                 wave = math.sin((i + self.t * 0.3) * 0.25)
                 ch = '~' if wave > 0.3 else '-' if wave > -0.4 else ' '
-                cv.put(band[0] + i, band[1], ch, dim(SUBTLE, 0.45))
+                cv.put(band[0] + i, band[1], ch, dim(SUBTLE, 0.45), over=True)   # fog veils the city too
 
     def _cloudy(self, cv):
         self._draw_clouds(cv, SUBTLE)
@@ -357,7 +892,7 @@ class Scene:
             b = (math.sin(self.t * speed + phase) + 1) / 2
             ch = '*' if b > 0.92 else '+' if b > 0.7 else '.' if b > 0.25 else ' '
             cv.put(x, y, ch, IRIS if b > 0.92 else dim(SUBTLE, 0.4 + b * 0.5))
-        cv.art(cv.w - 18, 2, MOON_ART, dim(TEXT, 0.85), solid=True)
+        cv.art(cv.w - 18, 2, MOON_ART, self.season.moon or dim(TEXT, 0.85), solid=True)
         self._draw_clouds(cv, dim(MUTED, 0.5))
         if self.shooting is None and random.random() < 0.003:
             self.shooting = [random.random() * cv.w * 0.6, random.random() * cv.h * 0.3, 0]
@@ -375,12 +910,24 @@ class Scene:
 
 # ---------------------------------------------------------------- main loop
 
+def day_arg(s):
+    for fmt in ('%Y-%m-%d', '%m-%d'):
+        try:
+            d = datetime.strptime(s, fmt).date()
+            return d if fmt == '%Y-%m-%d' else d.replace(year=date.today().year)
+        except ValueError:
+            pass
+    raise argparse.ArgumentTypeError('use YYYY-MM-DD or MM-DD')
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--scene', choices=SCENES, help='force a scene instead of live weather')
     ap.add_argument('--cycle', type=float, metavar='SECONDS', help='rotate through every scene')
     ap.add_argument('--no-caption', action='store_true', help='hide the bottom-right caption')
     ap.add_argument('--wind', type=float, metavar='KMH', help='force wind across the screen (+ right, - left)')
+    ap.add_argument('--date', type=day_arg, help='pretend it is this day, for the seasonal touches')
+    ap.add_argument('--no-skyline', action='store_true', help='just the sky, no Halifax waterfront')
     args = ap.parse_args()
 
     weather = Weather()
@@ -413,15 +960,17 @@ def main():
                 kind = SCENES[int((t0 - start) // args.cycle) % len(SCENES)]
             else:
                 kind = args.scene or weather.scene
-            if (kind, w, h) != key:
-                scene, key = Scene(kind, w, h, weather.drift), (kind, w, h)
+            today = args.date or date.today()
+            if (kind, w, h, today) != key:
+                scene, key = Scene(kind, w, h, weather.drift, today, not args.no_skyline), (kind, w, h, today)
                 out.write('\x1b[2J')
             scene.drift = args.wind if args.wind is not None else weather.drift   # follow refreshes live
-            cv = Canvas(w, h)
+            scene.dark = kind == 'night' or (kind not in ('sunny', 'partly') and not weather.day)
+            cv = Canvas(w, h, scene.skyline.mask if scene.skyline else None)
             scene.step(cv)
             caption = f'{kind}' if (args.scene or args.cycle) else weather.caption
             if caption and not args.no_caption:
-                cv.text(w - len(caption) - 2, h - 1, caption, dim(SUBTLE, 0.8), transparent=False)
+                cv.text(w - len(caption) - 2, h - 1, caption, dim(SUBTLE, 0.8), transparent=False, over=True)
             out.write(cv.render())
             out.flush()
             wait = max(0.0, 1 / FPS - (time.time() - t0))
