@@ -12,7 +12,7 @@ hl.config({
         border_size = V.border_size,
 
         col = {
-            active_border   = { colors = { V.color_active_1, V.color_active_2 }, angle = 45 },
+            active_border   = V.color_active,
             inactive_border = V.color_inactive,
         },
 
@@ -27,6 +27,9 @@ hl.config({
 
         active_opacity   = 1.0,
         inactive_opacity = 1.0,
+
+        dim_inactive = true,
+        dim_strength = 0.15,
 
         shadow = {
             enabled      = true,

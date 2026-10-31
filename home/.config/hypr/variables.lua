@@ -30,9 +30,8 @@ M.border_size = 1
 M.rounding    = 4
 
 -- Colors (Rosé Pine, black background)
-M.color_active_1 = "rgba(9ccfd8ee)" -- foam
-M.color_active_2 = "rgba(c4a7e7ee)" -- iris
-M.color_inactive = "rgba(6e6a86aa)" -- muted
+M.color_active   = "rgba(eb6f92ff)" -- love
+M.color_inactive = "rgba(26233a88)" -- overlay
 M.color_shadow   = "rgba(000000ee)" -- base
 
 -- Cursor
