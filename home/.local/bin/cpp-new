@@ -1,0 +1,54 @@
+#!/bin/bash
+set -euo pipefail
+
+usage() {
+    echo "Usage: $0 <dir>"
+    echo ""
+    echo "Creates a minimal CMake C++20 project in <dir>, builds it and runs it."
+    exit 1
+}
+
+[ "$#" -ne 1 ] && usage
+
+OUTPUT="$1"
+NAME="$(basename "$OUTPUT")"
+TARGET="${NAME//-/_}"   # CMake/C++ friendly name
+
+[ -e "$OUTPUT" ] && [ -n "$(ls -A "$OUTPUT" 2>/dev/null)" ] && { echo "Error: $OUTPUT exists and is not empty"; exit 1; }
+
+mkdir -p "$OUTPUT/src"
+cd "$OUTPUT"
+
+cat > CMakeLists.txt <<EOF
+cmake_minimum_required(VERSION 3.20)
+project($TARGET LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+add_executable($TARGET src/main.cpp)
+target_compile_options($TARGET PRIVATE -Wall -Wextra)
+EOF
+
+cat > src/main.cpp <<EOF
+#include <iostream>
+
+int main() {
+    std::cout << "Hello from $NAME\n";
+}
+EOF
+
+echo 'build*/' > .gitignore
+echo '/compile_commands.json' >> .gitignore
+git init -q
+
+cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug > /dev/null
+cmake --build build
+ln -sf build/compile_commands.json .
+
+echo ""
+./build/"$TARGET"
+echo ""
+echo "Created $OUTPUT/"
+echo "Rebuild: cmake --build build && ./build/$TARGET"

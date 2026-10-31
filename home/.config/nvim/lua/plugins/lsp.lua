@@ -122,6 +122,29 @@ return {
           end,
         },
       })
+
+      ---------------------------------------------------------------------------
+      -- 7) clangd (C/C++): system binary from pacman, not Mason, so it
+      --    matches the system GCC headers. Needs compile_commands.json.
+      ---------------------------------------------------------------------------
+      vim.lsp.config('clangd', {
+        cmd = {
+          'clangd',
+          '--background-index',        -- index whole project for gd / gr
+          '--clang-tidy',              -- extra lint warnings
+          '--header-insertion=iwyu',   -- auto-add #include on completion
+          '--completion-style=detailed',
+          '--function-arg-placeholders=true',
+        },
+        capabilities = capabilities,
+        on_attach = function(client, bufnr)
+          on_attach(client, bufnr)
+          -- jump between foo.cpp <-> foo.hpp
+          vim.keymap.set('n', '<leader>ch', '<cmd>LspClangdSwitchSourceHeader<CR>',
+            { buffer = bufnr, silent = true, desc = 'LSP: Switch source/header ([C]pp [H]eader)' })
+        end,
+      })
+      vim.lsp.enable('clangd')
     end,
   },
 }

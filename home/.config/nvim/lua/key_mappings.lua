@@ -43,6 +43,33 @@ vim.keymap.set('n', '<Leader>rm', function()
     end
   end
 
+  -- C++
+  if ext == "cpp" or ext == "cc" or ext == "cxx" then
+    -- Check for CMake project
+    if vim.fn.filereadable(project_root .. "/CMakeLists.txt") == 1 then
+      local rel = vim.fn.expand("%:.")            -- path relative to project root
+      local target
+      -- pick the add_executable() that lists this file, else the first one
+      for _, line in ipairs(vim.fn.readfile(project_root .. "/CMakeLists.txt")) do
+        local name = line:match("^%s*add_executable%s*%(%s*([%w_%-]+)")
+        if name then
+          target = target or name
+          if line:find(rel, 1, true) then target = name; break end
+        end
+      end
+      if not target then
+        vim.notify("No add_executable() in CMakeLists.txt", vim.log.levels.WARN)
+        return
+      end
+      local run_cmd = "cmake --build build && ./build/" .. target
+      local configure = "{ [ -d build ] || cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug; }"
+      local cmd = "cd " .. project_root .. " && " .. configure .. " && " .. run_cmd
+      vim.cmd("belowright split | terminal echo '" .. run_cmd .. "' && echo '' && " .. cmd)
+      vim.cmd("stopinsert")
+      return
+    end
+  end
+
   -- Python
   if ext == "py" then
     module_name = module_name:gsub("%.py$", "")
