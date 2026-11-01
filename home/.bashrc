@@ -56,6 +56,12 @@ export RIPGREP_CONFIG_PATH="$HOME/.config/ripgrep/config"
 export PATH="$HOME/.npm-global/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 
+# Basilisk flow solver (qcc), built in ~/src/basilisk
+if [ -d "$HOME/src/basilisk/src" ]; then
+	export BASILISK="$HOME/src/basilisk/src"
+	export PATH="$PATH:$BASILISK:$BASILISK/gview"
+fi
+
 # env.bash, aliases.bash, functions.bash
 for f in "$HOME"/.config/bash/{env,aliases,functions}.bash; do
 	[ -f "$f" ] && . "$f"

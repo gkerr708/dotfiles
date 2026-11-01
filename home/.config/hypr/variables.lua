@@ -32,7 +32,6 @@ M.rounding    = 4
 -- Colors (Rosé Pine, black background)
 M.color_active   = "rgba(eb6f92ff)" -- love
 M.color_inactive = "rgba(26233a88)" -- overlay
-M.color_shadow   = "rgba(000000ee)" -- base
 
 -- Cursor
 M.cursor_size = 24

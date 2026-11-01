@@ -1,13 +1,5 @@
 -- Window and layer rules.
 
-hl.layer_rule({
-    name  = "layerrule-1",
-    match = { namespace = "waybar" },
-
-    blur         = true,
-    ignore_alpha = 0.2,
-})
-
 hl.window_rule({
     name  = "windowrule-1",
     match = { class = ".*" },

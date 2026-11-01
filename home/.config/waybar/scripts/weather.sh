@@ -2,6 +2,8 @@
 # Weather for waybar (JSON) from wttr.in, pinned to Halifax. Prints nothing when offline (module hides).
 j=$(curl -sf -m 10 'https://wttr.in/Halifax,Nova+Scotia?format=j1') || exit 0
 code=$(echo "$j" | jq -r '.current_condition[0].weatherCode')
+# "... nearby" codes only count once precipitation is actually measured
+case $code in 176|179|182|185|200) [ "$(echo "$j" | jq -r '.current_condition[0].precipMM')" = 0.0 ] && code=119 ;; esac
 IFS='|' read -r rise set < <(echo "$j" | jq -r '.weather[0].astronomy[0] | "\(.sunrise)|\(.sunset)"')
 now=$(date +%H%M); day=1
 [ "$now" -lt "$(date -d "$rise" +%H%M)" ] || [ "$now" -ge "$(date -d "$set" +%H%M)" ] && day=0

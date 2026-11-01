@@ -54,6 +54,7 @@ SNOW = {179, 182, 185, 227, 230, 281, 284, 311, 314, 317, 320, 323, 326, 329, 33
         350, 362, 365, 368, 371, 374, 377}
 FOG = {143, 248, 260}
 CLOUDY = {119, 122}
+NEARBY = {176, 179, 182, 185, 200}   # "... nearby": only counts once precipitation is actually measured
 SCENES = ['rain', 'storm', 'snow', 'fog', 'cloudy', 'partly', 'sunny', 'night']
 
 CLOUD_ART = [
@@ -123,6 +124,8 @@ class Weather:
         try:
             c = j['current_condition'][0]
             code = int(c['weatherCode'])
+            if code in NEARBY and float(c.get('precipMM', 0)) == 0:
+                code = 119
             astro = j['weather'][0]['astronomy'][0]
             now = datetime.now().time()
             rise = datetime.strptime(astro['sunrise'], '%I:%M %p').time()
