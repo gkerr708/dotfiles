@@ -2,28 +2,191 @@
 set -euo pipefail
 
 usage() {
-    echo "Usage: $0 <dir>"
+    echo "Usage: $(basename "$0") [--python | --python-package | --python-bindings] <dir>"
     echo ""
-    echo "Creates a minimal CMake C++20 project in <dir>, builds it and runs it."
+    echo "Creates a minimal CMake C++23 project in <dir>, builds it and runs it."
+    echo ""
+    echo "  --python           add a uv project (matplotlib, pandas) with plot.py;"
+    echo "                     the C++ program writes results/output.csv for it to plot"
+    echo "  --python-package   same, but as a uv package (like 'uv init --package'):"
+    echo "                     plotting code in src/<name>/plot.py, run with 'uv run plot'"
+    echo "  --python-bindings  C++ compiled into a Python module with nanobind;"
+    echo "                     Python calls the C++ directly, run with 'uv run plot'"
     exit 1
 }
 
-[ "$#" -ne 1 ] && usage
+PYTHON=""          # "", "script", "package" or "bindings"
+OUTPUT=""
+for arg in "$@"; do
+    case "$arg" in
+        --python)          PYTHON="script" ;;
+        --python-package)  PYTHON="package" ;;
+        --python-bindings) PYTHON="bindings" ;;
+        -h|--help)         usage ;;
+        -*)                echo "Unknown option: $arg"; usage ;;
+        *)                 [ -n "$OUTPUT" ] && usage; OUTPUT="$arg" ;;
+    esac
+done
+[ -z "$OUTPUT" ] && usage
 
-OUTPUT="$1"
 NAME="$(basename "$OUTPUT")"
-TARGET="${NAME//-/_}"   # CMake/C++ friendly name
+TARGET="${NAME//-/_}"   # CMake/C++/Python friendly name
 
+[[ "$NAME" =~ ^[A-Za-z][A-Za-z0-9_-]*$ ]] || {
+    echo "Error: '$NAME' must start with a letter and contain only letters, digits, - and _"
+    exit 1
+}
 [ -e "$OUTPUT" ] && [ -n "$(ls -A "$OUTPUT" 2>/dev/null)" ] && { echo "Error: $OUTPUT exists and is not empty"; exit 1; }
 
 mkdir -p "$OUTPUT/src"
 cd "$OUTPUT"
 
+echo 'build*/' > .gitignore
+echo '/compile_commands.json' >> .gitignore
+if [ -n "$PYTHON" ]; then
+    {
+        echo 'results/'
+        echo '.venv/'
+        echo '__pycache__/'
+    } >> .gitignore
+fi
+
+# ---------------------------------------------------------------------------
+# --python-bindings: C++ built as a Python module (nanobind + scikit-build-core)
+# ---------------------------------------------------------------------------
+if [ "$PYTHON" = "bindings" ]; then
+    mkdir -p cpp "src/$TARGET"
+
+    cat > CMakeLists.txt <<EOF
+cmake_minimum_required(VERSION 3.20)
+project($TARGET LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+find_package(Python 3.12 REQUIRED COMPONENTS Interpreter Development.Module)
+find_package(nanobind CONFIG REQUIRED)
+
+nanobind_add_module(_core cpp/bindings.cpp)
+target_compile_options(_core PRIVATE -Wall -Wextra)
+install(TARGETS _core DESTINATION $TARGET)
+EOF
+
+    cat > pyproject.toml <<EOF
+[project]
+name = "$NAME"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+plot = "$TARGET.plot:main"
+
+[build-system]
+requires = ["scikit-build-core>=0.10", "nanobind>=2.0"]
+build-backend = "scikit_build_core.build"
+
+[tool.scikit-build]
+wheel.packages = ["src/$TARGET"]
+
+[tool.uv]
+# rebuild the C++ module on 'uv run' whenever these change
+cache-keys = [{ file = "pyproject.toml" }, { file = "CMakeLists.txt" }, { file = "cpp/**" }]
+EOF
+
+    cat > cpp/bindings.cpp <<'EOF'
+#include <cmath>
+#include <cstddef>
+#include <stdexcept>
+
+#include <nanobind/nanobind.h>
+#include <nanobind/ndarray.h>
+
+namespace nb = nanobind;
+
+// 1D NumPy array of doubles, passed without copying
+using Array = nb::ndarray<double, nb::ndim<1>, nb::c_contig, nb::device::cpu>;
+
+// Fills u with sin(x). Python owns both arrays; C++ reads x and writes u in place.
+void solve(Array x, Array u) {
+    if (x.shape(0) != u.shape(0)) {
+        throw std::invalid_argument("x and u must be the same length");
+    }
+    auto xv = x.view();
+    auto uv = u.view();
+    for (std::size_t i = 0; i < x.shape(0); ++i) {
+        uv(i) = std::sin(xv(i));
+    }
+}
+
+NB_MODULE(_core, m) {
+    m.def("solve", &solve, nb::arg("x"), nb::arg("u"),
+          "Fill u with sin(x).");
+}
+EOF
+
+    cat > "src/$TARGET/__init__.py" <<EOF
+"""$NAME: C++ solver with Python analysis."""
+
+from ._core import solve
+
+__all__ = ["solve"]
+EOF
+
+    cat > "src/$TARGET/plot.py" <<EOF
+import matplotlib.pyplot as plt
+import numpy as np
+
+from $TARGET import solve
+
+
+def main() -> None:
+    x = np.linspace(0.0, 10.0, 101)
+    u = np.empty_like(x)
+    solve(x, u)  # C++ fills u
+
+    fig, ax = plt.subplots()
+    ax.plot(x, u)
+    ax.set_xlabel("x")
+    ax.set_ylabel("u")
+
+    fig.savefig("results/output.png", dpi=150)
+    plt.show()
+
+
+if __name__ == "__main__":
+    main()
+EOF
+    mkdir -p results
+
+    uv add -q numpy matplotlib     # also builds the C++ module
+    uv add -q --dev nanobind       # so CMake/clangd can find the headers locally
+
+    git init -q
+
+    # Local configure only for clangd's compile_commands.json; uv does the real builds
+    cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug \
+        -DPython_EXECUTABLE="$PWD/.venv/bin/python" \
+        -Dnanobind_DIR="$(uv run python -m nanobind --cmake_dir)" > /dev/null
+    ln -sf build/compile_commands.json .
+
+    echo ""
+    uv run python -c "import numpy as np; from $TARGET import solve; u = np.empty(3); solve(np.array([0.0, 1.0, 2.0]), u); print('solve() from C++:', u)"
+    echo ""
+    echo "Created $OUTPUT/"
+    echo "Run:     uv run plot     (rebuilds the C++ automatically when it changes)"
+    exit 0
+fi
+
+# ---------------------------------------------------------------------------
+# Standalone C++ executable (default, --python, --python-package)
+# ---------------------------------------------------------------------------
 cat > CMakeLists.txt <<EOF
 cmake_minimum_required(VERSION 3.20)
 project($TARGET LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -31,16 +194,68 @@ add_executable($TARGET src/main.cpp)
 target_compile_options($TARGET PRIVATE -Wall -Wextra)
 EOF
 
-cat > src/main.cpp <<EOF
-#include <iostream>
+if [ -z "$PYTHON" ]; then
+    cat > src/main.cpp <<EOF
+#include <print>
 
 int main() {
-    std::cout << "Hello from $NAME\n";
+    std::println("Hello from $NAME");
+}
+EOF
+else
+    # C++ writes data, Python plots it. Both run from the project root.
+    cat > src/main.cpp <<'EOF'
+#include <cmath>
+#include <filesystem>
+#include <fstream>
+#include <print>
+
+int main() {
+    std::filesystem::create_directories("results");
+    std::ofstream file("results/output.csv");
+
+    std::println(file, "x,u");
+    for (int i = 0; i <= 100; ++i) {
+        const double x = i * 0.1;
+        std::println(file, "{},{}", x, std::sin(x));
+    }
+    std::println("Wrote results/output.csv");
 }
 EOF
 
-echo 'build*/' > .gitignore
-echo '/compile_commands.json' >> .gitignore
+    PLOT_PY='import matplotlib.pyplot as plt
+import pandas as pd
+
+
+def main() -> None:
+    df = pd.read_csv("results/output.csv")
+
+    fig, ax = plt.subplots()
+    ax.plot(df["x"], df["u"])
+    ax.set_xlabel("x")
+    ax.set_ylabel("u")
+
+    fig.savefig("results/output.png", dpi=150)
+    plt.show()
+
+
+if __name__ == "__main__":
+    main()'
+
+    if [ "$PYTHON" = "script" ]; then
+        uv init --bare --vcs none -q
+        echo "$PLOT_PY" > plot.py
+    else
+        uv init --package --vcs none -q
+        echo "$PLOT_PY" > "src/$TARGET/plot.py"
+        echo "\"\"\"Analysis and plotting for $NAME.\"\"\"" > "src/$TARGET/__init__.py"
+        # 'uv run plot' instead of uv's default hello-world entry point
+        sed -i "s|^$TARGET = \"$TARGET:main\"|plot = \"$TARGET.plot:main\"|" pyproject.toml
+    fi
+
+    uv add -q matplotlib pandas
+fi
+
 git init -q
 
 cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug > /dev/null
@@ -52,3 +267,7 @@ echo ""
 echo ""
 echo "Created $OUTPUT/"
 echo "Rebuild: cmake --build build && ./build/$TARGET"
+case "$PYTHON" in
+    script)  echo "Plot:    uv run plot.py" ;;
+    package) echo "Plot:    uv run plot" ;;
+esac
