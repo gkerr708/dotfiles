@@ -38,6 +38,7 @@ PACMAN_PKGS=(
     fzf                     # tmux-fzf
     eza                     # ls aliases
     zoxide
+    yt-dlp                  # yt-audio script
     starship
     git-delta
     fastfetch

@@ -1,0 +1,42 @@
+#!/bin/bash
+# Download the audio from a YouTube video (or playlist) into ~/Music/youtube.
+# Usage: yt-audio [-f FORMAT] [URL...]
+#   No URL      -> uses the clipboard if it holds a link, else asks via wofi.
+#   -f FORMAT   -> best (default: keep original, no re-encode), mp3, opus, flac, m4a
+# Title, artist and thumbnail are embedded in the file.
+set -euo pipefail
+
+fmt="best"
+while getopts "f:h" opt; do
+    case "$opt" in
+        f) fmt="$OPTARG" ;;
+        *) sed -n '2,6p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+dir="$HOME/Music/youtube"
+mkdir -p "$dir"
+
+urls=("$@")
+if [ ${#urls[@]} -eq 0 ]; then
+    clip="$(wl-paste --no-newline 2>/dev/null || true)"
+    if [[ "$clip" =~ ^https?://([a-z]+\.)?(youtube\.com|youtu\.be)/ ]]; then
+        urls=("$clip")
+    else
+        url="$(wofi --dmenu --prompt 'YouTube URL' --lines 1 </dev/null || true)"
+        [ -n "$url" ] || exit 0
+        urls=("$url")
+    fi
+fi
+
+if yt-dlp \
+    --extract-audio --audio-format "$fmt" --audio-quality 0 \
+    --embed-metadata --embed-thumbnail \
+    --output "$dir/%(uploader)s - %(title)s.%(ext)s" \
+    "${urls[@]}"; then
+    notify-send "yt-audio" "Saved to $dir"
+else
+    notify-send -u critical "yt-audio" "Download failed"
+    exit 1
+fi

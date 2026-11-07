@@ -11,6 +11,11 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("/usr/lib/xdg-desktop-portal-hyprland")
     hl.exec_cmd("/usr/lib/xdg-desktop-portal")
 
+    -- Dark mode: xdg-desktop-portal-gtk reads color-scheme from gsettings and
+    -- reports it to browsers (prefers-color-scheme). 'default' = light.
+    hl.exec_cmd("gsettings set org.gnome.desktop.interface color-scheme prefer-dark")
+    hl.exec_cmd("gsettings set org.gnome.desktop.interface gtk-theme Adwaita-dark")
+
     -- Wallpaper. hyprpaper preloads images from ~/.config/hypr/hyprpaper.conf
     -- on its own, but actually assigning a wallpaper to a monitor has to go
     -- through hyprctl's IPC once hyprpaper and the monitors are both up —
