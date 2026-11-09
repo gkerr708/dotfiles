@@ -59,6 +59,7 @@ Start scripts with `#!/bin/bash` and `set -euo pipefail`. Leave out `-e` where a
 | `new-tex <simple\|complex\|slides> <dir>` | New LaTeX project from `~/latex_templates` |
 | `check-git-repos [--pull\|--push\|--sync]` | Status of every repo under `~/lab` |
 | `maturin-uv <name>` | New Rust/Python (maturin + uv) project |
+| `help-lab-pc` | Student guide to getting around Hyprland on the lab PC |
 | `tmux-help` | tmux cheatsheet |
 | `arch-help` | Arch cheatsheet ([docs/arch-cheatsheet.md](docs/arch-cheatsheet.md)) |
 | `battery-info` | upower details for both laptop batteries |

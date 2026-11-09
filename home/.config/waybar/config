@@ -10,7 +10,8 @@
 
   "modules-left": [
     //"custom/logo",
-    "hyprland/workspaces",
+    "group/workspaces",   // clickable replacement for hyprland/workspaces (see scripts/workspaces.py)
+  "custom/ws-daemon",
     "hyprland/submap"
     //"hyprland/window"
   ],
@@ -42,6 +43,31 @@
     "on-click": "wofi --show drun || rofi -show drun",
     "exec-if": "bash -lc 'command -v wofi || command -v rofi'"
   },
+
+  // Workspace buttons. The built-in hyprland/workspaces module can't switch workspaces on
+  // click anymore: it sends the old "dispatch workspace N", which the Lua config rejects.
+  "group/workspaces": { "orientation": "horizontal", "modules": ["custom/ws1", "custom/ws2", "custom/ws3", "custom/ws4", "custom/ws5", "custom/ws6", "custom/ws7", "custom/ws8", "custom/ws9", "custom/ws10"] },
+  "custom/ws-daemon": { "exec": "~/.config/waybar/scripts/workspaces.py", "format": "", "restart-interval": 2 },
+  "custom/ws1": { "exec": "~/.config/waybar/scripts/workspaces.py 1", "return-type": "json", "signal": 9, "interval": "once",
+                    "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"1\" })'" },
+  "custom/ws2": { "exec": "~/.config/waybar/scripts/workspaces.py 2", "return-type": "json", "signal": 9, "interval": "once",
+                    "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"2\" })'" },
+  "custom/ws3": { "exec": "~/.config/waybar/scripts/workspaces.py 3", "return-type": "json", "signal": 9, "interval": "once",
+                    "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"3\" })'" },
+  "custom/ws4": { "exec": "~/.config/waybar/scripts/workspaces.py 4", "return-type": "json", "signal": 9, "interval": "once",
+                    "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"4\" })'" },
+  "custom/ws5": { "exec": "~/.config/waybar/scripts/workspaces.py 5", "return-type": "json", "signal": 9, "interval": "once",
+                    "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"5\" })'" },
+  "custom/ws6": { "exec": "~/.config/waybar/scripts/workspaces.py 6", "return-type": "json", "signal": 9, "interval": "once",
+                    "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"6\" })'" },
+  "custom/ws7": { "exec": "~/.config/waybar/scripts/workspaces.py 7", "return-type": "json", "signal": 9, "interval": "once",
+                    "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"7\" })'" },
+  "custom/ws8": { "exec": "~/.config/waybar/scripts/workspaces.py 8", "return-type": "json", "signal": 9, "interval": "once",
+                    "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"8\" })'" },
+  "custom/ws9": { "exec": "~/.config/waybar/scripts/workspaces.py 9", "return-type": "json", "signal": 9, "interval": "once",
+                    "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"9\" })'" },
+  "custom/ws10": { "exec": "~/.config/waybar/scripts/workspaces.py 10", "return-type": "json", "signal": 9, "interval": "once",
+                    "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"10\" })'" },
 
   "hyprland/workspaces": {
     "format": "{id} {windows}",              // shows workspace NUMBER, then its windows

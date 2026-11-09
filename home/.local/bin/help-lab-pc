@@ -1,0 +1,87 @@
+#!/bin/bash
+# Getting-around guide for students using the lab PC (Hyprland). Matches ~/.config/hypr/keybinds.lua.
+set -euo pipefail
+
+cat << 'EOF'
+==========================================================
+   Lab PC Help: getting around Hyprland
+==========================================================
+
+This computer uses Hyprland, a "tiling" window manager. There is no start
+menu, taskbar or desktop icons. New windows tile next to each other
+automatically, and you do most things with the keyboard.
+
+SUPER is the Windows key (the one with the logo, next to Alt).
+
+Stuck? Press SUPER + /  to search every shortcut.
+       Run   help-lab-pc  in a terminal to see this page again.
+
+----------------------------------------------------------
+ Opening programs
+----------------------------------------------------------
+    SUPER + R               app launcher: start typing a name, then Enter
+    SUPER + T               new terminal (kitty)
+    SUPER + B               web browser (Firefox)
+    SUPER + E               volume mixer
+
+  File explorer (Dolphin):
+    1. Press SUPER + R
+    2. Type  dolphin
+    3. Press Enter
+    Or from a terminal:  dolphin &     (opens in the current folder: dolphin . &)
+
+  Terminal file manager (faster once you know it):
+    yazi                    arrow keys / h j k l to move, q to quit
+
+----------------------------------------------------------
+ Windows
+----------------------------------------------------------
+    SUPER + Q               close the window
+    SUPER + Z               force-kill a frozen window
+    ALT + h / j / k / l     focus the window left / down / up / right
+    SUPER + ALT + h/j/k/l   swap the window with its neighbour
+    SUPER + CTRL + h/j/k/l  resize the window
+    SUPER + V               float / unfloat (a floating window can sit on top)
+    ALT + left-drag         move a window with the mouse
+    ALT + right-drag        resize a window with the mouse
+
+  Clicking a window also focuses it.
+
+----------------------------------------------------------
+ Workspaces (the numbered circles, top left)
+----------------------------------------------------------
+  Workspaces are separate screens. Use them to keep things apart, for
+  example code on 1, browser on 2, data and plots on 3.
+
+    Click a number          go to that workspace
+    SUPER + 1 ... 9, 0      go to workspace 1 ... 10
+    SUPER + A S D F G H J K go to workspace 1 ... 8 (home row)
+    SUPER + SHIFT + number  move the current window to that workspace
+                            (SUPER + SHIFT + A S D F ... works too)
+
+  The white circle is where you are. Icons next to a number show what is
+  open there; hover over it to see the window titles.
+
+----------------------------------------------------------
+ The top bar
+----------------------------------------------------------
+  Right side, click to open:
+    Vol     audio settings           Wifi    network settings
+    BT      Bluetooth devices        CPU/GPU system monitor (btop, q quits)
+  Scroll on Vol to change the volume.
+
+----------------------------------------------------------
+ Copy and paste
+----------------------------------------------------------
+    CTRL + C / CTRL + V          copy / paste in normal apps
+    CTRL + SHIFT + C / V         copy / paste in the terminal
+                                 (CTRL + C in a terminal stops the running program)
+
+----------------------------------------------------------
+ Leaving the computer
+----------------------------------------------------------
+    SUPER + X               lock the screen (unlock with the account password)
+  Please save your work and close your windows when you are done.
+
+==========================================================
+EOF
