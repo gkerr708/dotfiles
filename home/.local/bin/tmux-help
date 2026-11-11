@@ -23,6 +23,8 @@ Windows:
     Alt-l 0..9                  # jump to window
     Alt-l w                     # pick window
     Alt-l t                     # fuzzy-find window (tmux-fzf)
+    Alt-l : move-window -t <session>   # move this window to another session
+    Alt-l : swap-window -s 1 -t 2      # swap windows 1 and 2
 
 Panes:
     Alt-l %                     # split side by side
