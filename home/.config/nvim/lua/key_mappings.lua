@@ -70,6 +70,29 @@ vim.keymap.set('n', '<Leader>rm', function()
     end
   end
 
+  -- C
+  if ext == "c" then
+    local file_dir = vim.fn.expand("%:p:h")
+    -- nearest Makefile at or above this file (e.g. ps6/Makefile for ps6/src/waves.c)
+    local makefile = vim.fs.find("Makefile", { upward = true, path = file_dir })[1]
+    local run_cmd, dir
+    if makefile then
+      -- Makefile project (e.g. Basilisk): let the Makefile decide how to build and run
+      dir = vim.fs.dirname(makefile)
+      run_cmd = "make run"
+    else
+      -- single plain-C file: compile to /tmp and run it
+      dir = file_dir
+      local name = vim.fn.expand("%:t:r")
+      local src = vim.fn.shellescape(vim.fn.expand("%:t"))
+      run_cmd = "gcc -Wall -O2 " .. src .. " -o /tmp/" .. name .. " -lm && /tmp/" .. name
+    end
+    local cmd = "cd " .. vim.fn.shellescape(dir) .. " && " .. run_cmd
+    vim.cmd("belowright split | terminal echo '" .. run_cmd .. "' && echo '' && " .. cmd)
+    vim.cmd("stopinsert")
+    return
+  end
+
   -- Python
   if ext == "py" then
     module_name = module_name:gsub("%.py$", "")
