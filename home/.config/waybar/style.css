@@ -4,29 +4,7 @@ window#waybar {
   background: rgba(0,0,0,0.0); /* rgba(0, 0, 0, 0.65); */
   border-radius: 14px;
   border: none;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.35);
 }
-#workspaces button {
-  padding: 0 4px; margin: 2px 2px;
-  border-radius: 10px; transition: all 120ms ease-in-out;
-  color: #ffffff;
-  background: rgba(0, 0, 0, 0.0);
-  border: 1px solid rgba(255,255,255,0.35);
-}
-#workspaces button.active {
-  background: #ffffff;
-  color: #000000; border-color: transparent;
-}
-#workspaces button.urgent { background: #ffffff; color: #000000; }
-/* before (bad) */
-/* #workspaces button:hover { filter: brightness(1.1); transform: translateY(-1px); } */
-
-/* after (GTK-safe) */
-#workspaces button:hover {
-  opacity: 0.95;
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.25) inset;
-}
-
 #mpris { color: #ffffff; }
 
 #custom-logo { padding: 0 8px; color: #ffffff; font-size: 14px; }
@@ -79,11 +57,9 @@ tooltip label { color: #ffffff; }
 /* Workspace buttons (custom/ws1..10 from scripts/workspaces.py, same look as the old module) */
 #workspaces .ws {
   padding: 0 4px; margin: 2px 2px;
-  border-radius: 10px; transition: all 120ms ease-in-out;
+  border-radius: 10px;
   color: #ffffff;
   background: rgba(0, 0, 0, 0.0);
   border: 1px solid rgba(255,255,255,0.35);
 }
 #workspaces .ws.active { background: #ffffff; color: #000000; border-color: transparent; }
-#workspaces .ws.visible { border-color: #ffffff; }
-#workspaces .ws:hover { box-shadow: 0 0 0 1px rgba(255,255,255,0.25) inset; }

@@ -44,6 +44,7 @@ PACMAN_PKGS=(
     fastfetch
     tree
     btop
+    ttyper
     tmux
     yazi
     visidata                # `vd`, used by nvim + yazi
