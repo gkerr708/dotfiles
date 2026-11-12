@@ -77,13 +77,13 @@ tooltip {
 tooltip label { color: #ffffff; }
 
 /* Workspace buttons (custom/ws1..10 from scripts/workspaces.py, same look as the old module) */
-#workspaces label.ws {
+#workspaces .ws {
   padding: 0 4px; margin: 2px 2px;
   border-radius: 10px; transition: all 120ms ease-in-out;
   color: #ffffff;
   background: rgba(0, 0, 0, 0.0);
   border: 1px solid rgba(255,255,255,0.35);
 }
-#workspaces label.ws.active { background: #ffffff; color: #000000; border-color: transparent; }
-#workspaces label.ws.visible { border-color: #ffffff; }
-#workspaces label.ws:hover { box-shadow: 0 0 0 1px rgba(255,255,255,0.25) inset; }
+#workspaces .ws.active { background: #ffffff; color: #000000; border-color: transparent; }
+#workspaces .ws.visible { border-color: #ffffff; }
+#workspaces .ws:hover { box-shadow: 0 0 0 1px rgba(255,255,255,0.25) inset; }

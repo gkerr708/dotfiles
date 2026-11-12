@@ -10,7 +10,7 @@ to Hyprland's event socket, writes one JSON file per workspace into
 $XDG_RUNTIME_DIR/waybar-ws/, and signals waybar (RTMIN+9) so each custom/wsN reloads
 by running `workspaces.py N`, which just prints its file.
 """
-import json, os, re, socket, subprocess, sys, time
+import fcntl, json, os, re, socket, subprocess, sys, time
 
 STATE = os.path.join(os.environ.get("XDG_RUNTIME_DIR", "/tmp"), "waybar-ws")
 SIGNAL = 9
@@ -54,6 +54,7 @@ def render():
         windows.setdefault(c["workspace"]["id"], []).append(c)
 
     os.makedirs(STATE, exist_ok=True)
+    changed = False
     for n in ALL:
         ws_windows = windows.get(n, [])
         shown = n in PERSISTENT or ws_windows or n in visible
@@ -66,14 +67,28 @@ def render():
             classes.append("occupied")
         text = " ".join([str(n)] + [icon(c) for c in ws_windows]) if shown else ""
         tooltip = "\n".join(c.get("title") or c.get("class", "") for c in ws_windows) or f"Workspace {n} (empty)"
-        tmp = os.path.join(STATE, f"{n}.json.tmp")
-        with open(tmp, "w") as f:
-            json.dump({"text": text, "class": classes, "tooltip": tooltip}, f, ensure_ascii=False)
-        os.replace(tmp, os.path.join(STATE, f"{n}.json"))
-    subprocess.run(["pkill", f"-RTMIN+{SIGNAL}", "-x", "waybar"])
+        data = json.dumps({"text": text, "class": classes, "tooltip": tooltip}, ensure_ascii=False)
+        path = os.path.join(STATE, f"{n}.json")
+        try:
+            with open(path) as f:
+                if f.read() == data:
+                    continue
+        except OSError:
+            pass
+        with open(path + ".tmp", "w") as f:
+            f.write(data)
+        os.replace(path + ".tmp", path)
+        changed = True
+    if changed:  # only wake the bars when something actually changed
+        subprocess.run(["pkill", f"-RTMIN+{SIGNAL}", "-x", "waybar"])
 
 
 def daemon():
+    # Every bar (one per monitor) starts this; only one instance should do the work.
+    # The others block here and take over if the active one dies.
+    os.makedirs(STATE, exist_ok=True)
+    lock = open(os.path.join(STATE, "daemon.lock"), "w")
+    fcntl.flock(lock, fcntl.LOCK_EX)
     sock_path = os.path.join(os.environ["XDG_RUNTIME_DIR"], "hypr",
                              os.environ["HYPRLAND_INSTANCE_SIGNATURE"], ".socket2.sock")
     relevant = ("workspace", "focusedmon", "openwindow", "closewindow",
@@ -88,6 +103,15 @@ def daemon():
                 buf += chunk
                 *lines, buf = buf.split(b"\n")
                 if any(l.split(b">>")[0].decode(errors="ignore").startswith(relevant) for l in lines):
+                    # One switch fires a burst of events; swallow the rest of the burst
+                    # (anything arriving within 15 ms) and redraw once.
+                    s.settimeout(0.015)
+                    try:
+                        while more := s.recv(4096):
+                            buf = (buf + more).rsplit(b"\n", 1)[-1]
+                    except socket.timeout:
+                        pass
+                    s.settimeout(None)
                     render()
         except OSError:
             pass
