@@ -1,0 +1,12 @@
+{
+  "model": "sonnet",
+  "enabledPlugins": {
+    "lua-lsp@claude-plugins-official": true,
+    "clangd-lsp@claude-plugins-official": true
+  },
+  "theme": "dark",
+  "voice": {
+    "enabled": true,
+    "mode": "hold"
+  }
+}

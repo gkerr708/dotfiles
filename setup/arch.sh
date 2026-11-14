@@ -174,6 +174,7 @@ link_dotfiles() {
     # Real dirs so stow links files inside them instead of folding the whole dir
     # into the repo (other tools write to ~/.local/bin and ~/.config/systemd/user).
     mkdir -p \
+        "$HOME/.claude" \
         "$HOME/.local/bin" \
         "$HOME/.config/systemd/user" \
         "$HOME/.config/btop" \
