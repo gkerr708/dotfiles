@@ -18,6 +18,8 @@ hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(V.browser))
 hl.bind(mainMod .. " + SLASH", hl.dsp.exec_cmd("hypr-keybinds"))                   -- searchable keybind list
 hl.bind(mainMod .. " + SHIFT + M", hl.dsp.exec_cmd("hypr-toggle-animations"))      -- reduced motion on/off
 hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("ascii-weather-toggle"))        -- ASCII weather wallpaper on/off
+hl.bind(mainMod .. " + C", hl.dsp.exec_cmd("claude-speak stop"))                   -- stop Claude reading aloud (stays on for next reply)
+hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd("claude-speak pause"))          -- pause / resume Claude reading aloud
 
 -- Focus
 hl.bind(altMod .. " + h", hl.dsp.focus({ direction = "left" }))

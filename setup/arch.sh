@@ -120,6 +120,7 @@ AUR_PKGS=(
     autojump-git
     grimblast-git           # screenshots
     nchat-git               # terminal WhatsApp/Telegram client
+    piper-tts-bin           # offline text-to-speech (claude-speak reads Claude Code replies aloud)
 )
 
 # ── AUR helper bootstrap ────────────────────────────────────────────────────────
@@ -218,6 +219,18 @@ setup_extras() {
     if [[ ! -f "$HOME/images/black.png" ]]; then
         mkdir -p "$HOME/images"
         magick -size 16x16 xc:black "$HOME/images/black.png"
+    fi
+
+    # Piper voice for claude-speak (see home/.local/bin/claude-speak). ~63 MB, downloaded once.
+    local voice_dir="$HOME/.local/share/piper"
+    local voice="en_US-lessac-medium"
+    local voice_url="https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium"
+    if [[ ! -f "$voice_dir/$voice.onnx" || ! -f "$voice_dir/$voice.onnx.json" ]]; then
+        echo -e "${YELLOW}Downloading Piper voice ($voice)...${RC}"
+        mkdir -p "$voice_dir"
+        curl -fsSL -o "$voice_dir/$voice.onnx" "$voice_url/$voice.onnx" \
+            && curl -fsSL -o "$voice_dir/$voice.onnx.json" "$voice_url/$voice.onnx.json" \
+            || echo -e "${RED}Piper voice download failed; claude-speak stays silent until it is fetched.${RC}"
     fi
 
     # Services

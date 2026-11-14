@@ -18,6 +18,10 @@ After changing what's in `home/`, re-link with:
 stow --restow home       # run from ~/dotfiles
 ```
 
+`./setup/arch.sh` also installs Piper (offline text-to-speech) and downloads its voice, so Claude Code can read replies aloud.
+It is off until you run `claude-speak on` (stays on across sessions). While it talks, `Super+C` stops it and `Super+Shift+C` pauses/resumes.
+Restart Claude Code once after the first install so it loads the hook.
+
 Optional, per-machine setup (see [docs/hardware.md](docs/hardware.md)):
 
 | Script | What it does |
