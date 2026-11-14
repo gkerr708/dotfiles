@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# claude-speak: turn Claude Code's spoken replies on or off.
+#   claude-speak on | off | toggle | status | stop
+# The Stop hook (claude-speak-hook) only speaks while the flag file exists.
+set -u
+FLAG="${XDG_STATE_HOME:-$HOME/.local/state}/claude-speak/enabled"
+
+stop_speech() { pkill -x piper-tts 2>/dev/null; pkill -f 'paplay --raw --rate=22050' 2>/dev/null; true; }
+
+case "${1:-toggle}" in
+    on)     mkdir -p "$(dirname "$FLAG")"; touch "$FLAG"; echo "Claude speech: on" ;;
+    off)    rm -f "$FLAG"; stop_speech; echo "Claude speech: off" ;;
+    toggle) if [[ -e "$FLAG" ]]; then exec "$0" off; else exec "$0" on; fi ;;
+    status) [[ -e "$FLAG" ]] && echo "Claude speech: on" || echo "Claude speech: off" ;;
+    stop)   stop_speech ;;   # cut off whatever is being read right now
+    *)      echo "usage: claude-speak on|off|toggle|status|stop" >&2; exit 1 ;;
+esac

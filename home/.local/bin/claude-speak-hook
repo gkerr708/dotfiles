@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# Claude Code Stop hook: read Claude's last reply aloud with Piper.
+# Does nothing unless speech is on (see claude-speak). Prose only: code blocks,
+# tables, links and long output are dropped so it stays listenable.
+set -u
+FLAG="${XDG_STATE_HOME:-$HOME/.local/state}/claude-speak/enabled"
+MODEL="${CLAUDE_SPEAK_MODEL:-$HOME/.local/share/piper/en_US-lessac-medium.onnx}"
+MAX_CHARS=700
+
+[[ -e "$FLAG" ]] || exit 0
+command -v piper-tts >/dev/null && [[ -r "$MODEL" ]] || exit 0
+
+payload=$(cat)
+LOG="${XDG_STATE_HOME:-$HOME/.local/state}/claude-speak/last.log"
+mkdir -p "$(dirname "$LOG")"
+printf "%s payload: %s\n" "$(date +%T)" "$(printf %s "$payload" | head -c 600)" >"$LOG"
+sleep 0.3   # give Claude Code a moment to flush the transcript
+
+text=$(PAYLOAD="$payload" MAX_CHARS="$MAX_CHARS" python3 - <<'EOF'
+import json, os, re
+
+payload = json.loads(os.environ.get("PAYLOAD") or "{}")
+text = payload.get("last_assistant_message") or ""
+
+if not text:
+    path = payload.get("transcript_path", "")
+    try:
+        for line in open(path):
+            d = json.loads(line)
+            if d.get("type") != "assistant":
+                continue
+            parts = [b.get("text", "") for b in d["message"]["content"] if b.get("type") == "text"]
+            if parts:
+                text = "\n".join(parts)
+    except OSError:
+        pass
+
+# --- make it speakable ---
+text = re.sub(r"```.*?```", " ", text, flags=re.S)        # code blocks
+text = re.sub(r"^\s*\|.*$", "", text, flags=re.M)          # table rows
+text = re.sub(r"!?\[([^\]]*)\]\([^)]*\)", r"\1", text)     # links -> link text
+text = re.sub(r"https?://\S+", "", text)                   # bare URLs
+text = re.sub(r"`([^`]*)`", r"\1", text)                   # inline code -> plain
+text = re.sub(r"^\s*#+\s*", "", text, flags=re.M)          # headings
+text = re.sub(r"^\s*[-*•]\s+", "", text, flags=re.M)       # bullets
+text = re.sub(r"[*_]{1,3}", "", text)                      # bold/italic marks
+text = text.replace("·", ",").replace("→", "to").replace("—", ", ")
+text = re.sub(r"[^\x20-\x7E\n]", "", text)                 # drop emoji/odd symbols
+text = re.sub(r"\s*\n\s*", ". ", text)
+text = re.sub(r"\.\s*\.", ".", text)
+text = re.sub(r"\s{2,}", " ", text).strip()
+
+limit = int(os.environ["MAX_CHARS"])
+if len(text) > limit:
+    cut = text[:limit]
+    end = max(cut.rfind(". "), cut.rfind("? "), cut.rfind("! "))
+    text = cut[: end + 1] if end > 200 else cut
+print(text)
+EOF
+)
+
+printf "spoken: %s\n" "$text" >>"$LOG"
+[[ -n "$text" ]] || exit 0
+
+"$HOME/.local/bin/claude-speak" stop   # don't talk over an earlier reply
+printf '%s' "$text" | setsid -f bash -c '
+    piper-tts --model "$0" --output-raw 2>/dev/null |
+        paplay --raw --rate=22050 --channels=1 --format=s16le
+' "$MODEL" >/dev/null 2>&1
+exit 0

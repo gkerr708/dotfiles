@@ -8,5 +8,17 @@
   "voice": {
     "enabled": true,
     "mode": "hold"
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.local/bin/claude-speak-hook"
+          }
+        ]
+      }
+    ]
   }
 }
