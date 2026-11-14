@@ -143,7 +143,10 @@
   "bluetooth": {
     "format": "BT: {status}",
     "format-connected": "BT: {num_connections}",
+    "format-connected-battery": "BT: {device_battery_percentage}%",
     "tooltip-format": "{controller_alias}\n{device_enumerate}",
+    "tooltip-format-enumerate-connected": "{device_alias}",
+    "tooltip-format-enumerate-connected-battery": "{device_alias} {device_battery_percentage}%",
 	"on-click": "blueman-manager || kitty -e bluetoothctl"
   },
 
